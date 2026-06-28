@@ -1,0 +1,26 @@
+{
+  "name": "monabit-dashboard",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "yarn dev:web & yarn dev:api",
+    "dev:web": "yarn workspace @monabit/web dev",
+    "dev:api": "yarn workspace @monabit/api dev",
+    "build": "yarn build:shared && yarn build:web && yarn build:api",
+    "build:web": "yarn workspace @monabit/web build",
+    "build:api": "yarn workspace @monabit/api build",
+    "build:shared": "yarn workspace @monabit/shared build",
+    "lint": "yarn lint:web && yarn lint:api && yarn lint:shared",
+    "lint:web": "yarn workspace @monabit/web lint",
+    "lint:api": "yarn workspace @monabit/api lint",
+    "lint:shared": "yarn workspace @monabit/shared lint",
+    "typecheck": "yarn typecheck:web && yarn typecheck:api && yarn typecheck:shared",
+    "typecheck:web": "yarn workspace @monabit/web typecheck",
+    "typecheck:api": "yarn workspace @monabit/api typecheck",
+    "typecheck:shared": "yarn workspace @monabit/shared typecheck"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@monabit/api",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "nodemon --exec tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "*",
+    "@types/node": "*",
+    "nodemon": "*",
+    "tsx": "*",
+    "typescript": "*"
+  }
+}
