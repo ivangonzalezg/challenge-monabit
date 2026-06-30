@@ -11,12 +11,12 @@ A full-stack crypto market dashboard built as a technical challenge. The project
 | Shared types | TypeScript (no compiled output) |
 | Monorepo | Yarn workspaces |
 | Crypto provider | CoinGecko |
-| Deployment (planned) | Google Cloud Run |
+| Deployment | Google Cloud Run |
 
 ## Monorepo structure
 
 ```
-monabit-dashboard/
+challenge-monabit/
 ├─ apps/
 │  ├─ web/           React frontend
 │  └─ api/           Express backend
@@ -25,7 +25,6 @@ monabit-dashboard/
 ├─ infra/            Dockerfiles and deployment notes
 ├─ docs/             Project documentation
 ├─ tsconfig.base.json
-├─ .env.example
 └─ package.json
 ```
 
@@ -38,15 +37,16 @@ monabit-dashboard/
 
 ```bash
 # 1. Clone the repository
-git clone <repo-url>
-cd monabit-dashboard
+git clone https://github.com/ivangonzalezg/challenge-monabit.git
+cd challenge-monabit
 
 # 2. Install all workspace dependencies
 yarn install
 
-# 3. Copy and fill in environment variables
-cp .env.example .env
-# Edit .env and set COINGECKO_API_KEY and any other required values
+# 3. Copy and fill in environment variables for each app
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+# Edit each .env file and fill in the required values
 ```
 
 ## Running locally
@@ -72,6 +72,67 @@ yarn dev:api    # http://localhost:8080
 | `yarn typecheck` | Type-check all packages |
 | `yarn lint` | Lint all packages |
 
+## Database
+
+The API uses **Drizzle ORM** with PostgreSQL. You only need a connection string — no extra tooling required.
+
+Set `DATABASE_URL` in `apps/api/.env`:
+
+```
+DATABASE_URL=postgres://user:password@host:5432/monabit
+```
+
+Any standard PostgreSQL URL works: local Docker, Supabase, Neon, Railway, etc.
+
+### Running Postgres locally with Docker
+
+If you don't have a PostgreSQL instance, you can spin one up with Docker:
+
+```bash
+docker compose -f infra/docker-compose.yml up -d
+```
+
+This starts a Postgres 16 container on port `5432`. Use this connection string:
+
+```
+DATABASE_URL=postgres://monabit:monabit@localhost:5432/monabit
+```
+
+To stop it:
+
+```bash
+docker compose -f infra/docker-compose.yml down
+```
+
+To stop and delete all data:
+
+```bash
+docker compose -f infra/docker-compose.yml down -v
+```
+
+### Database migrations
+
+The project uses versioned migrations — never push schema changes directly. The workflow is:
+
+1. Edit `apps/api/src/db/schema.ts`
+2. Generate the migration file (SQL diff from your last migration):
+   ```bash
+   yarn workspace @monabit/api db:generate
+   ```
+3. Review the generated `.sql` file in `apps/api/src/db/migrations/`
+4. Apply it to your database:
+   ```bash
+   yarn workspace @monabit/api db:migrate
+   ```
+
+Drizzle tracks which migrations have been applied in a `__drizzle_migrations` table, so `db:migrate` only runs files that haven't been applied yet.
+
+**First time setup** — after cloning and setting `DATABASE_URL`, apply all existing migrations:
+
+```bash
+yarn workspace @monabit/api db:migrate
+```
+
 ## Backend health check
 
 ```bash
@@ -90,16 +151,24 @@ Expected response:
 
 ## Environment variables
 
-See [.env.example](.env.example) for the full list. Key variables:
+See [apps/api/.env.example](apps/api/.env.example) and [apps/web/.env.example](apps/web/.env.example) for the full list. Key variables:
 
 | Variable | Description |
 |---|---|
-| `VITE_API_URL` | Backend URL consumed by the frontend |
+| `VITE_API_URL` | Public URL of the API consumed by the frontend (default `http://localhost:8080`) |
 | `PORT` | API port (default `8080`) |
-| `WEB_ORIGIN` | Allowed CORS origin (default `http://localhost:5173`) |
-| `CRYPTO_PROVIDER` | Active crypto provider (`coingecko`) |
+| `NODE_ENV` | Runtime environment (`development` / `production`) |
+| `CORS_ORIGIN` | Allowed CORS origin (default `http://localhost:5173`) |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `BETTER_AUTH_SECRET` | Random secret for auth token signing (min 32 chars) |
+| `BETTER_AUTH_URL` | Public URL of the API used by Better Auth |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `CRYPTO_PROVIDER` | Crypto data provider (default `coingecko`) |
 | `COINGECKO_API_BASE_URL` | CoinGecko base URL |
-| `COINGECKO_API_KEY` | CoinGecko API key (optional for demo tier) |
+| `COINGECKO_API_KEY` | CoinGecko API key |
+| `CRYPTO_SYNC_SECRET` | Internal secret for the crypto sync endpoint |
+| `CRYPTO_SYNC_INTERVAL_MINUTES` | How often crypto data is synced in minutes (default `5`) |
 
 ## Project status
 
@@ -111,7 +180,7 @@ See [.env.example](.env.example) for the full list. Key variables:
 2. Backend internal architecture (module structure, error handling, middleware)
 3. Authentication (email/password + Google OAuth)
 4. Protected routes and auth middleware
-5. User management (profile, preferences)
+5. User management (profile)
 6. Crypto data gateway implementation (CoinGecko endpoints)
 7. CoinGecko integration (market data, KPIs)
 8. Persistence layer (database provider selection + schema)
@@ -120,7 +189,7 @@ See [.env.example](.env.example) for the full list. Key variables:
 ## Documentation
 
 - [Architecture](docs/architecture.md)
-- [Database](docs/database.md)
+- [Database Schema](docs/schema.md)
 - [Auth & Security](docs/auth-security.md)
 - [Crypto Data Gateway](docs/crypto-data-gateway.md)
 - [AI Usage](docs/ai-usage.md)
