@@ -5,6 +5,7 @@ import { swaggerSpec } from "./lib/swagger";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import meRouter from "./modules/me/me.router";
+import { bootstrapFirstAdmin } from "./lib/bootstrap";
 
 
 const app = express();
@@ -44,6 +45,8 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/me", meRouter);
 
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+bootstrapFirstAdmin(process.env).then(() => {
+  app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+  });
 });

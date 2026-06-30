@@ -133,10 +133,22 @@ Drizzle tracks which migrations have been applied in a `__drizzle_migrations` ta
 yarn workspace @monabit/api db:migrate
 ```
 
+## First admin setup
+
+On first deploy, set these three environment variables to automatically create the first admin user on startup:
+
+| Variable | Description |
+|---|---|
+| `FIRST_ADMIN_EMAIL` | Email for the first admin account |
+| `FIRST_ADMIN_PASSWORD` | Password for the first admin account (use a strong one) |
+| `FIRST_ADMIN_NAME` | Display name (optional, defaults to `Admin`) |
+
+The bootstrap runs before the server starts. If an admin already exists it does nothing, so these vars are safe to leave in place across restarts. Once the admin is created you can remove them from your environment config.
+
 ## Backend health check
 
 ```bash
-curl http://localhost:8080/health
+curl http://localhost:8080/api/health
 ```
 
 Expected response:
@@ -169,6 +181,9 @@ See [apps/api/.env.example](apps/api/.env.example) and [apps/web/.env.example](a
 | `COINGECKO_API_KEY` | CoinGecko API key |
 | `CRYPTO_SYNC_SECRET` | Internal secret for the crypto sync endpoint |
 | `CRYPTO_SYNC_INTERVAL_MINUTES` | How often crypto data is synced in minutes (default `5`) |
+| `FIRST_ADMIN_EMAIL` | Email for the first admin (bootstrap only, optional) |
+| `FIRST_ADMIN_PASSWORD` | Password for the first admin (bootstrap only, optional) |
+| `FIRST_ADMIN_NAME` | Display name for the first admin (bootstrap only, defaults to `Admin`) |
 
 ## Project status
 

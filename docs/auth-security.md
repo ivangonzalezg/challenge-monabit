@@ -131,6 +131,20 @@ Implemented in `apps/api/src/lib/middleware.ts`:
 
 ---
 
+## First admin bootstrap
+
+On startup, `bootstrapFirstAdmin` (`apps/api/src/lib/bootstrap.ts`) runs before the server begins listening. If `FIRST_ADMIN_EMAIL` and `FIRST_ADMIN_PASSWORD` are set and no admin exists in the database, it creates the user and promotes them to `admin` role automatically.
+
+| Variable | Required | Notes |
+|---|---|---|
+| `FIRST_ADMIN_EMAIL` | Yes | Email for the first admin account |
+| `FIRST_ADMIN_PASSWORD` | Yes | Password (use a strong one) |
+| `FIRST_ADMIN_NAME` | No | Display name, defaults to `Admin` |
+
+The check is idempotent — if an admin already exists it does nothing, so the vars are safe to leave in across restarts. Once the admin is created you can remove them from your environment config.
+
+---
+
 ## Auth endpoints
 
 Better Auth is mounted at `/api/auth/*` in `apps/api/src/index.ts`.
@@ -201,4 +215,5 @@ Never commit real values. All required keys are documented in `apps/api/.env.exa
 | Google provider config | Implemented (requires env vars) |
 | Admin user management | Implemented (`/api/admin/users`) |
 | Request validation (Zod) | Implemented (`validate` middleware) |
+| First admin bootstrap | Implemented (`bootstrapFirstAdmin`) |
 | Frontend auth flow | Not yet implemented |
