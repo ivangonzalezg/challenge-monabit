@@ -1,0 +1,1212 @@
+paths:
+  /api/auth/sign-up/email:
+    post:
+      tags:
+        - Auth
+      summary: Register with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  example: supersecret123
+      responses:
+        "200":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/auth/sign-in/email:
+    post:
+      tags:
+        - Auth
+      summary: Sign in with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  example: supersecret123
+      responses:
+        "200":
+          description: Signed in successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/sign-out:
+    post:
+      tags:
+        - Auth
+      summary: Sign out and invalidate the current session
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Signed out successfully
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/get-session:
+    get:
+      tags:
+        - Auth
+      summary: Get current session
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Current session data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags:
+        - Auth
+      summary: Get current session (POST variant)
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Current session data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/sign-in/social:
+    post:
+      tags:
+        - Auth
+      summary: Initiate a social OAuth flow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - provider
+                - callbackURL
+              properties:
+                provider:
+                  type: string
+                  enum:
+                    - google
+                  example: google
+                callbackURL:
+                  type: string
+                  example: http://localhost:5173/auth/callback
+      responses:
+        "200":
+          description: Redirect URL to the OAuth provider
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  redirect:
+                    type: boolean
+
+  /api/auth/callback/{id}:
+    get:
+      tags:
+        - Auth
+      summary: OAuth callback handler
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Provider identifier (e.g. google)
+          example: google
+      responses:
+        "302":
+          description: Redirects to the application after OAuth success
+        "400":
+          $ref: "#/components/responses/BadRequest"
+    post:
+      tags:
+        - Auth
+      summary: OAuth callback handler (POST variant)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: google
+      responses:
+        "302":
+          description: Redirects to the application after OAuth success
+
+  /api/auth/update-user:
+    post:
+      tags:
+        - Auth
+      summary: Update the authenticated user's profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                image:
+                  type: string
+      responses:
+        "200":
+          description: User updated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/delete-user:
+    post:
+      tags:
+        - Auth
+      summary: Request deletion of the authenticated user's account
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callbackURL:
+                  type: string
+      responses:
+        "200":
+          description: Deletion initiated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/delete-user/callback:
+    get:
+      tags:
+        - Auth
+      summary: Confirm account deletion via token link
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirects after deletion
+
+  /api/auth/change-email:
+    post:
+      tags:
+        - Auth
+      summary: Request an email change
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newEmail
+              properties:
+                newEmail:
+                  type: string
+                  format: email
+                callbackURL:
+                  type: string
+      responses:
+        "200":
+          description: Verification email sent
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/change-password:
+    post:
+      tags:
+        - Auth
+      summary: Change the authenticated user's password
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                  format: password
+                newPassword:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Password changed
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/set-password:
+    post:
+      tags:
+        - Auth
+      summary: Set a password for an account created via OAuth (no existing password)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newPassword
+              properties:
+                newPassword:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Password set
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/verify-password:
+    post:
+      tags:
+        - Auth
+      summary: Verify a password against the current user's stored password
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+              properties:
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+
+  /api/auth/request-password-reset:
+    post:
+      tags:
+        - Auth
+      summary: Send a password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                redirectTo:
+                  type: string
+      responses:
+        "200":
+          description: Reset email sent if account exists
+
+  /api/auth/reset-password:
+    post:
+      tags:
+        - Auth
+      summary: Reset password using a token from email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newPassword
+                - token
+              properties:
+                newPassword:
+                  type: string
+                  format: password
+                token:
+                  type: string
+      responses:
+        "200":
+          description: Password reset successfully
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/auth/reset-password/{token}:
+    get:
+      tags:
+        - Auth
+      summary: Validate password reset token (link from email)
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirects to the reset password page
+
+  /api/auth/verify-email:
+    get:
+      tags:
+        - Auth
+      summary: Verify email address via token link
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirects after verification
+
+  /api/auth/send-verification-email:
+    post:
+      tags:
+        - Auth
+      summary: Resend email verification
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Verification email sent
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/list-sessions:
+    get:
+      tags:
+        - Auth
+      summary: List all active sessions for the authenticated user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SessionObject"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/revoke-session:
+    post:
+      tags:
+        - Auth
+      summary: Revoke a specific session by token
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+      responses:
+        "200":
+          description: Session revoked
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/revoke-sessions:
+    post:
+      tags:
+        - Auth
+      summary: Revoke all sessions for the authenticated user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: All sessions revoked
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/revoke-other-sessions:
+    post:
+      tags:
+        - Auth
+      summary: Revoke all sessions except the current one
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Other sessions revoked
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/update-session:
+    post:
+      tags:
+        - Auth
+      summary: Update session metadata
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Session updated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/refresh-token:
+    post:
+      tags:
+        - Auth
+      summary: Refresh the current access token
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: New token issued
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/get-access-token:
+    post:
+      tags:
+        - Auth
+      summary: Get a new access token for the current session
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Access token
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/link-social:
+    post:
+      tags:
+        - Auth
+      summary: Link a social account to the current user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - provider
+                - callbackURL
+              properties:
+                provider:
+                  type: string
+                  enum:
+                    - google
+                callbackURL:
+                  type: string
+      responses:
+        "200":
+          description: Redirect URL to provider
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/unlink-account:
+    post:
+      tags:
+        - Auth
+      summary: Unlink a social account from the current user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - providerId
+              properties:
+                providerId:
+                  type: string
+                  example: google
+      responses:
+        "200":
+          description: Account unlinked
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/list-accounts:
+    get:
+      tags:
+        - Auth
+      summary: List linked social accounts for the current user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of linked accounts
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/account-info:
+    get:
+      tags:
+        - Auth
+      summary: Get info about a linked account from the provider
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Account info from provider
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/ok:
+    get:
+      tags:
+        - Auth
+      summary: Health check for the Better Auth handler
+      responses:
+        "200":
+          description: OK
+
+  /api/auth/error:
+    get:
+      tags:
+        - Auth
+      summary: Returns the last auth error (for debugging)
+      responses:
+        "200":
+          description: Error details
+
+  # Admin Plugin endpoints
+  /api/auth/admin/get-user:
+    get:
+      tags:
+        - Admin (Better Auth)
+      summary: Get a user by ID or email
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+        - in: query
+          name: email
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/list-users:
+    get:
+      tags:
+        - Admin (Better Auth)
+      summary: List all users
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated user list
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/create-user:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Create a user as admin
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - role
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                role:
+                  type: string
+                  enum:
+                    - user
+                    - admin
+      responses:
+        "200":
+          description: Created user
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/update-user:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Update any user's fields as admin
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+                name:
+                  type: string
+                role:
+                  type: string
+                  enum:
+                    - user
+                    - admin
+      responses:
+        "200":
+          description: Updated user
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/remove-user:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Permanently delete a user as admin
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+      responses:
+        "200":
+          description: User removed
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/ban-user:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Ban a user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+                banReason:
+                  type: string
+                banExpiresIn:
+                  type: number
+                  description: Seconds until ban expires (omit for permanent)
+      responses:
+        "200":
+          description: User banned
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/unban-user:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Unban a user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+      responses:
+        "200":
+          description: User unbanned
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/impersonate-user:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Start impersonating a user (get their session)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+      responses:
+        "200":
+          description: Impersonation session
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/stop-impersonating:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Stop impersonating and return to admin session
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Back to admin session
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/set-role:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Set a user's role
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - role
+              properties:
+                userId:
+                  type: string
+                role:
+                  type: string
+                  enum:
+                    - user
+                    - admin
+      responses:
+        "200":
+          description: Role updated
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/set-user-password:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Set a user's password as admin
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - newPassword
+              properties:
+                userId:
+                  type: string
+                newPassword:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Password set
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/list-user-sessions:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: List all sessions for a specific user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+      responses:
+        "200":
+          description: List of sessions
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/revoke-user-session:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Revoke a specific session for any user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sessionToken
+              properties:
+                sessionToken:
+                  type: string
+      responses:
+        "200":
+          description: Session revoked
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/revoke-user-sessions:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Revoke all sessions for a specific user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+      responses:
+        "200":
+          description: All sessions revoked
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/auth/admin/has-permission:
+    post:
+      tags:
+        - Admin (Better Auth)
+      summary: Check if the current user has a specific permission
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - permission
+              properties:
+                permission:
+                  type: object
+      responses:
+        "200":
+          description: Permission check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hasPermission:
+                    type: boolean
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+components:
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/UserObject"
+
+    SessionResponse:
+      type: object
+      properties:
+        session:
+          $ref: "#/components/schemas/SessionObject"
+        user:
+          $ref: "#/components/schemas/UserObject"
+
+    UserObject:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        emailVerified:
+          type: boolean
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - blocked
+            - deleted
+        image:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SessionObject:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        ipAddress:
+          type: string
+          nullable: true
+        userAgent:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserProfile:
+      type: object
+      properties:
+        userId:
+          type: string
+        displayName:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserPreferences:
+      type: object
+      properties:
+        userId:
+          type: string
+        theme:
+          type: string
+          nullable: true
+        defaultDashboardView:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

@@ -21,6 +21,32 @@ export const updateProfileSchema = z.object({
     .optional(),
 });
 
+/**
+ * @openapi
+ * /api/me:
+ *   get:
+ *     tags:
+ *       - Me
+ *     summary: Get current authenticated user, session and profile
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       "200":
+ *         description: Current user, session and profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: "#/components/schemas/UserObject"
+ *                 session:
+ *                   $ref: "#/components/schemas/SessionObject"
+ *                 profile:
+ *                   $ref: "#/components/schemas/UserProfile"
+ *       "401":
+ *         $ref: "#/components/responses/Unauthorized"
+ */
 router.get("/", requireRole(), async (_req, res) => {
   const session = res.locals.session as Session;
   const [profile] = await db
@@ -34,6 +60,57 @@ router.get("/", requireRole(), async (_req, res) => {
   });
 });
 
+/**
+ * @openapi
+ * /api/me/profile:
+ *   put:
+ *     tags:
+ *       - Me
+ *     summary: Create or update the authenticated user's profile
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               displayName:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 100
+ *                 example: John Doe
+ *               bio:
+ *                 type: string
+ *                 maxLength: 500
+ *                 example: Crypto enthusiast
+ *               country:
+ *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 2
+ *                 example: US
+ *               timezone:
+ *                 type: string
+ *                 example: America/New_York
+ *     responses:
+ *       "200":
+ *         description: Updated profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/UserProfile"
+ *       "201":
+ *         description: Created profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/UserProfile"
+ *       "400":
+ *         $ref: "#/components/responses/BadRequest"
+ *       "401":
+ *         $ref: "#/components/responses/Unauthorized"
+ */
 router.put(
   "/profile",
   requireRole(),
