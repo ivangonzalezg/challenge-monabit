@@ -21,6 +21,7 @@
     "typecheck": "yarn typecheck:web && yarn typecheck:api && yarn typecheck:shared",
     "typecheck:web": "yarn workspace @monabit/web typecheck",
     "typecheck:api": "yarn workspace @monabit/api typecheck",
-    "typecheck:shared": "yarn workspace @monabit/shared typecheck"
+    "typecheck:shared": "yarn workspace @monabit/shared typecheck",
+    "validate:web": "yarn workspace @monabit/web validate"
   }
 }
