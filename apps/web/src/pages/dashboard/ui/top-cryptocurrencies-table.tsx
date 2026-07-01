@@ -80,23 +80,23 @@ export function TopCryptocurrenciesTable({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top 10 cryptocurrencies</CardTitle>
+        <CardTitle>Top 10 criptomonedas</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16 text-center">Rank</TableHead>
-              <TableHead>Asset</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">24h Change</TableHead>
+              <TableHead className="w-16 text-center">#</TableHead>
+              <TableHead>Activo</TableHead>
+              <TableHead className="text-right">Precio</TableHead>
+              <TableHead className="text-right">Cambio 24h</TableHead>
               <TableHead className="hidden text-right md:table-cell">
-                Market Cap
+                Cap. de mercado
               </TableHead>
               <TableHead className="hidden text-right lg:table-cell">
-                Volume (24h)
+                Volumen (24h)
               </TableHead>
-              <TableHead className="w-32 text-center">7d Trend</TableHead>
+              <TableHead className="w-32 text-center">Tendencia 7d</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

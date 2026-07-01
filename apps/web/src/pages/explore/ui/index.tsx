@@ -99,9 +99,9 @@ export function ExplorePage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold">Explore cryptocurrencies</h1>
+        <h1 className="text-2xl font-semibold">Explorar criptomonedas</h1>
         <p className="text-muted-foreground">
-          Search and save cryptocurrencies from the assets synchronized in
+          Busca y guarda criptomonedas de los activos sincronizados en
           MarketMint.
         </p>
       </div>

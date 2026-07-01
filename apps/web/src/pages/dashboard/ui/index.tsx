@@ -51,15 +51,15 @@ function EmptyState() {
 
 function UpdatedAt({ lastUpdatedAt }: { lastUpdatedAt: string | null }) {
   if (!lastUpdatedAt) {
-    return <span>Updated —</span>
+    return <span>Actualizado —</span>
   }
 
   return (
     <span>
-      Updated{" "}
+      Actualizado{" "}
       <ReactTimeAgo
         date={new Date(lastUpdatedAt)}
-        locale="en"
+        locale="es"
         timeStyle="round"
       />
     </span>
@@ -88,9 +88,9 @@ export function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
-          <h1 className="text-2xl font-semibold">Market overview</h1>
+          <h1 className="text-2xl font-semibold">Resumen del mercado</h1>
           <p className="text-muted-foreground">
-            Track the latest crypto market data from your private dashboard.
+            Consulta los últimos datos del mercado cripto en tu panel privado.
           </p>
         </div>
         {data ? (
@@ -101,7 +101,7 @@ export function DashboardPage() {
             </div>
             <div className="flex items-center gap-1">
               <Database className="size-4" />
-              <span>Source: {data.source}</span>
+              <span>Fuente: {data.source}</span>
             </div>
           </div>
         ) : null}

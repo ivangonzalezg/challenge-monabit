@@ -12,10 +12,10 @@ const SORT_ORDER: AssetSortBy[] = [
 ]
 
 const sortLabels: Record<AssetSortBy, string> = {
-  marketCap: "Market Cap",
-  price: "Price",
-  change24h: "24h Change",
-  volume24h: "Volume 24h",
+  marketCap: "Cap. de mercado",
+  price: "Precio",
+  change24h: "Cambio 24h",
+  volume24h: "Volumen 24h",
 }
 
 type AssetControlsProps = {
@@ -38,15 +38,15 @@ export function AssetControls({
         <Input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search by name or symbol..."
+          placeholder="Buscar por nombre o símbolo..."
           className="pl-9"
         />
       </div>
-      <div className="flex w-full items-center gap-2 md:w-auto">
+      <div className="flex w-full flex-col items-start gap-2 sm:flex-row sm:items-center md:w-auto">
         <span className="hidden text-sm whitespace-nowrap text-muted-foreground sm:block">
-          Sort by:
+          Ordenar por:
         </span>
-        <div className="flex flex-1 rounded-lg border bg-muted/50 p-1 md:flex-none">
+        <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/50 p-1">
           {SORT_ORDER.map((option) => (
             <Button
               key={option}
@@ -55,7 +55,7 @@ export function AssetControls({
               size="sm"
               onClick={() => onSortByChange(option)}
               className={cn(
-                "flex-1 rounded-md md:flex-none",
+                "rounded-md",
                 sortBy === option
                   ? "bg-background font-medium text-primary shadow-sm hover:bg-background"
                   : "text-muted-foreground hover:text-foreground"

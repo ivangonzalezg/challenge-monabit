@@ -1,14 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { RouterProvider } from "react-router"
 import TimeAgo from "javascript-time-ago"
-import en from "javascript-time-ago/locale/en"
+import es from "javascript-time-ago/locale/es"
 
 import { ThemeProvider } from "@/shared/lib/theme"
 import { Toaster } from "@/shared/ui"
 
 import { router } from "./router"
 
-TimeAgo.addDefaultLocale(en)
+TimeAgo.addDefaultLocale(es)
 
 const queryClient = new QueryClient()
 

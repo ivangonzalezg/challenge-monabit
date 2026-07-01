@@ -41,29 +41,29 @@ type KpiCardsProps = {
 export function KpiCards({ kpis }: KpiCardsProps) {
   const cards: { label: string; value: string; changePct?: number | null }[] = [
     {
-      label: "Total Market Cap",
+      label: "Capitalización total",
       value: formatUsdCompact(kpis.totalMarketCapUsd.value),
       changePct: kpis.totalMarketCapUsd.changePct24h,
     },
     {
-      label: "24h Volume",
+      label: "Volumen 24h",
       value: formatUsdCompact(kpis.totalVolumeUsd.value),
       changePct: kpis.totalVolumeUsd.changePct24h,
     },
     {
-      label: "BTC Dominance",
+      label: "Dominancia BTC",
       value: formatPercent(kpis.btcDominancePct.value),
     },
     {
-      label: "ETH Dominance",
+      label: "Dominancia ETH",
       value: formatPercent(kpis.ethDominancePct.value),
     },
     {
-      label: "USDT Dominance",
+      label: "Dominancia USDT",
       value: formatPercent(kpis.usdtDominancePct.value),
     },
     {
-      label: "Active Cryptos",
+      label: "Criptomonedas activas",
       value: kpis.activeCryptocurrencies.value?.toLocaleString() ?? "—",
     },
   ]

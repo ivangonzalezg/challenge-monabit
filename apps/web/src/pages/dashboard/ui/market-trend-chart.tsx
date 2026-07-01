@@ -26,11 +26,11 @@ const METRIC_ORDER: ChartMetric[] = [
 ]
 
 const metricLabels: Record<ChartMetric, string> = {
-  marketCap: "Market cap",
-  volume: "Volume",
-  btcDom: "BTC dom",
-  ethDom: "ETH dom",
-  usdtDom: "USDT dom",
+  marketCap: "Cap. de mercado",
+  volume: "Volumen",
+  btcDom: "Dom. BTC",
+  ethDom: "Dom. ETH",
+  usdtDom: "Dom. USDT",
 }
 
 const metricField: Record<ChartMetric, keyof MarketTrendPoint> = {
@@ -51,7 +51,7 @@ const metricFormatters: Record<ChartMetric, (value: number) => string> = {
 
 const chartConfig = {
   value: {
-    label: "Value",
+    label: "Valor",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig
@@ -68,7 +68,7 @@ export function MarketTrendChart({ marketTrend }: MarketTrendChartProps) {
   return (
     <Card>
       <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <CardTitle>Market trend</CardTitle>
+        <CardTitle>Tendencia del mercado</CardTitle>
         <div className="flex rounded-lg border bg-muted/50 p-1">
           {METRIC_ORDER.map((metric) => (
             <button
@@ -113,7 +113,7 @@ export function MarketTrendChart({ marketTrend }: MarketTrendChartProps) {
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value: string) =>
-                new Date(value).toLocaleDateString("en-US", {
+                new Date(value).toLocaleDateString("es-ES", {
                   month: "short",
                   day: "numeric",
                 })

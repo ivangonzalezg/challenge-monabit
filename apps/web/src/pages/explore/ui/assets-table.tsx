@@ -40,12 +40,12 @@ export function AssetsTable({ assets, onToggleFavorite }: AssetsTableProps) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Asset</TableHead>
-          <TableHead className="text-right">Price</TableHead>
-          <TableHead className="text-right">24h Change</TableHead>
-          <TableHead className="text-right">Market Cap</TableHead>
-          <TableHead className="text-right">Volume (24h)</TableHead>
-          <TableHead className="w-16 text-center">Fav</TableHead>
+          <TableHead>Activo</TableHead>
+          <TableHead className="text-right">Precio</TableHead>
+          <TableHead className="text-right">Cambio 24h</TableHead>
+          <TableHead className="text-right">Cap. de mercado</TableHead>
+          <TableHead className="text-right">Volumen (24h)</TableHead>
+          <TableHead className="w-16 text-center">Fav.</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -77,8 +77,8 @@ export function AssetsTable({ assets, onToggleFavorite }: AssetsTableProps) {
                 onClick={() => onToggleFavorite(asset)}
                 aria-label={
                   asset.isFavorite
-                    ? "Remove from favorites"
-                    : "Add to favorites"
+                    ? "Quitar de favoritos"
+                    : "Agregar a favoritos"
                 }
                 className="text-muted-foreground transition-colors hover:text-emerald-600"
               >
