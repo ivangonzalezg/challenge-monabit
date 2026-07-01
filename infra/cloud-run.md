@@ -21,10 +21,22 @@ All runtime configuration is injected through Cloud Run environment variables or
 | Variable | Where to configure |
 |---|---|
 | `PORT` | Injected automatically by Cloud Run |
+| `NODE_ENV` | Cloud Run environment variable (`production`) |
+| `CORS_ORIGIN` | Cloud Run environment variable |
 | `WEB_ORIGIN` | Cloud Run environment variable |
+| `DATABASE_URL` | Cloud Run secret (Secret Manager) |
+| `BETTER_AUTH_SECRET` | Cloud Run secret (Secret Manager) |
+| `BETTER_AUTH_URL` | Cloud Run environment variable (public API URL) |
+| `GOOGLE_CLIENT_ID` | Cloud Run environment variable |
+| `GOOGLE_CLIENT_SECRET` | Cloud Run secret (Secret Manager) |
+| `RESEND_API_KEY` | Cloud Run secret (Secret Manager) |
+| `RESEND_FROM_EMAIL` | Cloud Run environment variable |
 | `CRYPTO_PROVIDER` | Cloud Run environment variable |
 | `COINGECKO_API_BASE_URL` | Cloud Run environment variable |
 | `COINGECKO_API_KEY` | Cloud Run secret (Secret Manager) |
+| `FIRST_ADMIN_EMAIL` | Cloud Run environment variable (remove after first deploy) |
+| `FIRST_ADMIN_PASSWORD` | Cloud Run secret (remove after first deploy) |
+| `FIRST_ADMIN_NAME` | Cloud Run environment variable (optional) |
 
 ## Secrets
 
@@ -32,4 +44,4 @@ Sensitive values (API keys, database credentials, auth secrets) must be stored i
 
 ## Health check
 
-Cloud Run can be configured to use `GET /health` on the API service as a startup and liveness probe.
+Cloud Run can be configured to use `GET /api/health` on the API service as a startup and liveness probe.

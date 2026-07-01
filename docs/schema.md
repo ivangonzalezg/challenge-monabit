@@ -382,16 +382,27 @@ BETTER_AUTH_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=example-google-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=example-google-client-secret
 
+# Resend (transactional email)
+RESEND_API_KEY=re_change-me
+RESEND_FROM_EMAIL=MarketMint <onboarding@resend.dev>
+
+# First admin bootstrap
+FIRST_ADMIN_EMAIL=admin@example.com
+FIRST_ADMIN_PASSWORD=change-me-strong-password
+FIRST_ADMIN_NAME=Admin
+
 # Server
 CORS_ORIGIN=http://localhost:5173
+WEB_ORIGIN=http://localhost:5173
 NODE_ENV=development
 PORT=3000
 
 # Crypto sync
+CRYPTO_PROVIDER=coingecko
+COINGECKO_API_BASE_URL=https://api.coingecko.com/api/v3
 COINGECKO_API_KEY=example-coingecko-api-key
-COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
 CRYPTO_SYNC_SECRET=example-internal-sync-secret
-CRYPTO_SYNC_INTERVAL_MINUTES=10
+CRYPTO_SYNC_INTERVAL_MINUTES=5
 CRYPTO_DATA_STALE_AFTER_MINUTES=15
 ```
 

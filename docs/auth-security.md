@@ -196,6 +196,11 @@ GOOGLE_CLIENT_SECRET=example-google-client-secret
 RESEND_API_KEY=re_change-me
 RESEND_FROM_EMAIL=MarketMint <onboarding@resend.dev>
 
+# First admin bootstrap
+FIRST_ADMIN_EMAIL=admin@example.com
+FIRST_ADMIN_PASSWORD=change-me-strong-password
+FIRST_ADMIN_NAME=Admin
+
 # Server
 CORS_ORIGIN=http://localhost:5173
 WEB_ORIGIN=http://localhost:5173
