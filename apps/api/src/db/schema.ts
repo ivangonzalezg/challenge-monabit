@@ -73,21 +73,6 @@ export const verification = pgTable("verification", {
 // MonaBit domain tables
 // ---------------------------------------------------------------------------
 
-export const userProfiles = pgTable("user_profiles", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
-  userId: text("user_id")
-    .notNull()
-    .unique()
-    .references(() => user.id, { onDelete: "cascade" }),
-  displayName: varchar("display_name", { length: 100 }),
-  bio: varchar("bio", { length: 500 }),
-  country: varchar("country", { length: 2 }),
-  timezone: varchar("timezone", { length: 64 }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
-
 export const userFavoriteCryptos = pgTable(
   "user_favorite_cryptos",
   {

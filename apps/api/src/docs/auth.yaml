@@ -1137,30 +1137,6 @@ components:
           type: string
           format: date-time
 
-    UserProfile:
-      type: object
-      properties:
-        userId:
-          type: string
-        displayName:
-          type: string
-          nullable: true
-        bio:
-          type: string
-          nullable: true
-        country:
-          type: string
-          nullable: true
-        timezone:
-          type: string
-          nullable: true
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-
     UserPreferences:
       type: object
       properties:

@@ -4,7 +4,6 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./lib/swagger";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
-import meRouter from "./modules/me/me.router";
 import { bootstrapFirstAdmin } from "./lib/bootstrap";
 
 
@@ -41,9 +40,6 @@ app.get("/api/health", (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
-
-app.use("/api/me", meRouter);
-
 
 bootstrapFirstAdmin(process.env).then(() => {
   app.listen(port, () => {
