@@ -1,7 +1,7 @@
 {
   "name": "@monabit/api",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "dev": "nodemon --exec tsx src/index.ts",
     "build": "tsc && mkdir -p dist/templates && cp src/templates/*.html dist/templates/ && rm -f dist/templates/__test-fixture.html",
