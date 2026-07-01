@@ -13,6 +13,12 @@
       "skillPath": "security/SKILL.md",
       "computedHash": "5717187bba9c22030c7174c74012f01c359f21e2ce87e0eb80e24244d8b8c915"
     },
+    "coingecko": {
+      "source": "coingecko/skills",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "e194863298c6c39dcc906964467ca74cbcce156fc15e3712275fab92e9ea650b"
+    },
     "create-auth-skill": {
       "source": "better-auth/skills",
       "sourceType": "github",

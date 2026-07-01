@@ -5,6 +5,8 @@ import { swaggerSpec } from "./lib/swagger";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { bootstrapFirstAdmin } from "./lib/bootstrap";
+import { cryptoRouter } from "./modules/crypto/crypto.routes";
+import { startCryptoSyncScheduler } from "./modules/crypto/sync/crypto-sync.scheduler";
 
 
 const app = express();
@@ -33,6 +35,8 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 
 app.use(express.json());
 
+app.use("/api/crypto", cryptoRouter);
+
 app.get("/api/health", (_req, res) => {
   res.json({
     status: "ok",
@@ -42,6 +46,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 bootstrapFirstAdmin(process.env).then(() => {
+  startCryptoSyncScheduler();
   app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
   });
