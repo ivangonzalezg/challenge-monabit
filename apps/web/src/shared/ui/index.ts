@@ -113,3 +113,12 @@ export {
   TableCell,
   TableCaption,
 } from "./table"
+export {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from "./pagination"

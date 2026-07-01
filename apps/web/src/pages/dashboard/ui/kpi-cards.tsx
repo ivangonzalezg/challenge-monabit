@@ -1,6 +1,6 @@
 import { Minus, TrendingDown, TrendingUp } from "lucide-react"
 
-import { formatPercent, formatUsdCompact } from "../lib/format"
+import { formatPercent, formatUsdCompact } from "@/shared/lib/format"
 import type { DashboardResponse } from "../model/types"
 import { Card, CardContent } from "@/shared/ui"
 

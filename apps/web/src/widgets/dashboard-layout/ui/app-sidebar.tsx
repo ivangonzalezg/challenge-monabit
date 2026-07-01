@@ -12,7 +12,7 @@ import {
 } from "lucide-react"
 
 import { authClient, useSession } from "@/entities/session"
-import { logo } from "@/shared/assets"
+import { logo, logoDark } from "@/shared/assets"
 import {
   Sidebar,
   SidebarContent,
@@ -121,7 +121,12 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <Link to="/" className="mb-2 flex items-center px-3 py-2">
-          <img src={logo} alt="MarketMint" className="h-8 w-auto" />
+          <img src={logo} alt="MarketMint" className="h-8 w-auto dark:hidden" />
+          <img
+            src={logoDark}
+            alt="MarketMint"
+            className="hidden h-8 w-auto dark:block"
+          />
         </Link>
       </SidebarHeader>
       <SidebarContent>

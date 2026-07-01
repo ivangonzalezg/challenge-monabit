@@ -1,0 +1,60 @@
+import type { AssetSortBy, PaginatedAssetsResponse } from "../model/types"
+
+const API_URL = import.meta.env.VITE_API_URL
+
+export async function getAssets(params: {
+  page: number
+  pageSize: number
+  search?: string
+  sortBy: AssetSortBy
+}): Promise<PaginatedAssetsResponse> {
+  const query = new URLSearchParams({
+    page: String(params.page),
+    pageSize: String(params.pageSize),
+    sortBy: params.sortBy,
+  })
+  if (params.search) {
+    query.set("search", params.search)
+  }
+
+  const res = await fetch(`${API_URL}/api/crypto/assets?${query.toString()}`, {
+    credentials: "include",
+  })
+
+  if (!res.ok) {
+    throw new Error("Failed to load assets")
+  }
+
+  return res.json()
+}
+
+export async function addFavorite(params: {
+  providerAssetId: string
+  symbol: string
+  name: string
+}): Promise<void> {
+  const res = await fetch(`${API_URL}/api/crypto/favorites`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  })
+
+  if (!res.ok) {
+    throw new Error("Failed to add favorite")
+  }
+}
+
+export async function removeFavorite(providerAssetId: string): Promise<void> {
+  const res = await fetch(
+    `${API_URL}/api/crypto/favorites/${encodeURIComponent(providerAssetId)}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    }
+  )
+
+  if (!res.ok) {
+    throw new Error("Failed to remove favorite")
+  }
+}

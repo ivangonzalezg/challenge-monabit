@@ -1,6 +1,6 @@
 import { AreaChart, Area } from "recharts"
 
-import { formatUsdCompact } from "../lib/format"
+import { formatUsdCompact } from "@/shared/lib/format"
 import type { TopAsset } from "../model/types"
 import {
   Card,

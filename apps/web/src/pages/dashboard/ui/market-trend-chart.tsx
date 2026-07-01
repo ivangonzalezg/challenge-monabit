@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
-import { formatPercent, formatUsdCompact } from "../lib/format"
+import { formatPercent, formatUsdCompact } from "@/shared/lib/format"
 import type { MarketTrendPoint } from "../model/types"
 import {
   Card,
