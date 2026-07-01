@@ -22,6 +22,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@/app": ["./src/app/index.tsx"],
       "@/app/*": ["./src/app/*"],
       "@/pages/*": ["./src/pages/*"],
       "@/widgets/*": ["./src/widgets/*"],

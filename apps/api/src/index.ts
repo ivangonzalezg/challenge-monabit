@@ -1,4 +1,5 @@
 import "dotenv/config";
+import path from "node:path";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./lib/swagger";
@@ -43,6 +44,12 @@ app.get("/api/health", (_req, res) => {
     service: "monabit-api",
     timestamp: new Date().toISOString(),
   });
+});
+
+const publicDir = path.join(__dirname, "public");
+app.use(express.static(publicDir));
+app.get(/^(?!\/api).*/, (_req, res) => {
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
 bootstrapFirstAdmin(process.env).then(() => {

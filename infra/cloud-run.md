@@ -2,17 +2,20 @@
 
 ## Overview
 
-The frontend and backend are deployed as **separate Cloud Run services**:
+The application is deployed as a **single Cloud Run service**: the Express API serves the compiled Vite SPA as static files, with a fallback route for client-side routing.
 
 | Service | Source | Notes |
 |---|---|---|
-| `monabit-web` | `infra/web.Dockerfile` | Serves the compiled Vite SPA |
-| `monabit-api` | `infra/api.Dockerfile` | Runs the Express API |
+| `monabit` | `infra/Dockerfile` | Runs the Express API and serves the built SPA from the same origin |
 
 ## API requirements
 
-- The API must listen on the port provided by the `PORT` environment variable (Cloud Run injects this automatically; default `8080`).
-- Set `WEB_ORIGIN` to the deployed frontend URL so CORS is configured correctly.
+- The service must listen on the port provided by the `PORT` environment variable (Cloud Run injects this automatically; default `8080`).
+- All non-`/api/*` routes fall back to `index.html` so client-side routing works on refresh/direct navigation.
+
+## Build-time configuration
+
+- `VITE_API_URL` — passed as a Docker build-arg (`--build-arg VITE_API_URL=...`). Leave unset/empty for same-origin relative `/api/...` calls (the default, since the SPA and API share one Cloud Run service). Only set this if the frontend needs to call a different origin.
 
 ## Environment variables
 
@@ -26,7 +29,7 @@ All runtime configuration is injected through Cloud Run environment variables or
 | `WEB_ORIGIN` | Cloud Run environment variable |
 | `DATABASE_URL` | Cloud Run secret (Secret Manager) |
 | `BETTER_AUTH_SECRET` | Cloud Run secret (Secret Manager) |
-| `BETTER_AUTH_URL` | Cloud Run environment variable (public API URL) |
+| `BETTER_AUTH_URL` | Cloud Run environment variable (public service URL) |
 | `GOOGLE_CLIENT_ID` | Cloud Run environment variable |
 | `GOOGLE_CLIENT_SECRET` | Cloud Run secret (Secret Manager) |
 | `RESEND_API_KEY` | Cloud Run secret (Secret Manager) |
@@ -46,4 +49,16 @@ Sensitive values (API keys, database credentials, auth secrets) must be stored i
 
 ## Health check
 
-Cloud Run can be configured to use `GET /api/health` on the API service as a startup and liveness probe.
+Cloud Run can be configured to use `GET /api/health` as a startup and liveness probe.
+
+## CI/CD
+
+See `.github/workflows/deploy.yml` — builds `infra/Dockerfile`, pushes to Artifact Registry, and deploys to Cloud Run on push to `main`, authenticating via Workload Identity Federation (no long-lived GCP keys stored in GitHub).
+
+### One-time GCP setup (outside this repo)
+
+1. Create an Artifact Registry Docker repository.
+2. Create a GCP service account with `roles/run.admin`, `roles/iam.serviceAccountUser`, and `roles/artifactregistry.writer` on the target project.
+3. Create a Workload Identity Federation pool + provider trusting this GitHub repo, and bind it to the service account.
+4. Add two **repository variables** (not secrets — these are identifiers, not credentials) in GitHub: `GCP_WORKLOAD_IDENTITY_PROVIDER` and `GCP_SERVICE_ACCOUNT`.
+5. Add repository variables for `GCP_PROJECT_ID`, `GCP_REGION`, and `ARTIFACT_REGISTRY_REPO`.
