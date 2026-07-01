@@ -2,7 +2,7 @@
 
 ## Overview
 
-MonaBit Dashboard is organized as a **Yarn workspace monorepo**. The repository is split into apps and shared packages so each concern can evolve independently while sharing common types.
+MarketMint Dashboard is organized as a **Yarn workspace monorepo**. The repository is split into apps and shared packages so each concern can evolve independently while sharing common types.
 
 ## Workspace structure
 
@@ -50,7 +50,7 @@ Browser → apps/web → HTTP → apps/api → Crypto Gateway → CoinGecko API
 - **Database:** SQL (PostgreSQL-compatible). Firestore is not used.
 - **Authentication:** [Better Auth](https://www.better-auth.com) — an internal backend library, not an external hosted provider. Better Auth manages user identity, sessions, credential storage, and Google OAuth. It stores auth data in the same project database.
 - **Sessions:** Cookie-based (Better Auth default). Secure HTTP-only cookies. No localStorage token storage for the browser app.
-- **Google login:** Social provider via Better Auth. MonaBit owns the application session.
+- **Google login:** Social provider via Better Auth. MarketMint owns the application session.
 - **User roles and status:** Application-level fields (`role`, `status`) extending the Better Auth user model.
 - **Crypto data:** The backend synchronizes up to 250 assets from CoinGecko every 10 minutes into `crypto_assets`. The frontend never calls CoinGecko directly.
 - **Currency:** USD only for the MVP.

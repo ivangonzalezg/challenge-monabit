@@ -24,14 +24,15 @@ export async function bootstrapFirstAdmin(env: Env): Promise<void> {
     return;
   }
 
-  const result = await auth.api.signUpEmail({
-    body: { email, password, name },
+  const result = await auth.api.createUser({
+    body: {
+      email,
+      password,
+      name,
+      role: "admin",
+      data: { emailVerified: true },
+    },
   });
-
-  await db
-    .update(user)
-    .set({ role: "admin" })
-    .where(eq(user.id, result.user.id));
 
   console.log(
     `[bootstrap] First admin created successfully: ${email} (id: ${result.user.id})`,

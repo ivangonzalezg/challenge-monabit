@@ -1,4 +1,4 @@
-# MonaBit Crypto Dashboard
+# MarketMint Crypto Dashboard
 
 A full-stack crypto market dashboard built as a technical challenge. The project is organized as a Yarn workspace monorepo with a React frontend, a Node.js/Express backend, and a shared TypeScript types package.
 
@@ -171,11 +171,14 @@ See [apps/api/.env.example](apps/api/.env.example) and [apps/web/.env.example](a
 | `PORT` | API port (default `8080`) |
 | `NODE_ENV` | Runtime environment (`development` / `production`) |
 | `CORS_ORIGIN` | Allowed CORS origin (default `http://localhost:5173`) |
+| `WEB_ORIGIN` | Frontend base URL, used as the fallback redirect target for password reset and email verification links (default `http://localhost:5173`) |
 | `DATABASE_URL` | PostgreSQL connection string |
 | `BETTER_AUTH_SECRET` | Random secret for auth token signing (min 32 chars) |
 | `BETTER_AUTH_URL` | Public URL of the API used by Better Auth |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `RESEND_API_KEY` | Resend API key for transactional email. If unset, email sending is skipped and a warning with the link is logged instead |
+| `RESEND_FROM_EMAIL` | Sender address for transactional email (default `MarketMint <onboarding@resend.dev>`) |
 | `CRYPTO_PROVIDER` | Crypto data provider (default `coingecko`) |
 | `COINGECKO_API_BASE_URL` | CoinGecko base URL |
 | `COINGECKO_API_KEY` | CoinGecko API key |

@@ -9,6 +9,7 @@ import {
   jsonb,
   unique,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 // ---------------------------------------------------------------------------
 // Better Auth tables
@@ -73,7 +74,7 @@ export const verification = pgTable("verification", {
 // ---------------------------------------------------------------------------
 
 export const userProfiles = pgTable("user_profiles", {
-  id: varchar("id", { length: 36 }).primaryKey().default("gen_random_uuid()"),
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
   userId: text("user_id")
     .notNull()
     .unique()
@@ -90,7 +91,7 @@ export const userProfiles = pgTable("user_profiles", {
 export const userFavoriteCryptos = pgTable(
   "user_favorite_cryptos",
   {
-    id: varchar("id", { length: 36 }).primaryKey().default("gen_random_uuid()"),
+    id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -103,7 +104,7 @@ export const userFavoriteCryptos = pgTable(
 );
 
 export const cryptoAssets = pgTable("crypto_assets", {
-  id: varchar("id", { length: 36 }).primaryKey().default("gen_random_uuid()"),
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
   provider: varchar("provider", { length: 32 }).notNull().default("coingecko"),
   providerAssetId: varchar("provider_asset_id", { length: 64 })
     .notNull()
@@ -147,7 +148,7 @@ export const cryptoAssets = pgTable("crypto_assets", {
 });
 
 export const cryptoMarketKpis = pgTable("crypto_market_kpis", {
-  id: varchar("id", { length: 36 }).primaryKey().default("gen_random_uuid()"),
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
   provider: varchar("provider", { length: 32 }).notNull().default("coingecko"),
   activeCryptocurrencies: integer("active_cryptocurrencies"),
   markets: integer("markets"),
@@ -174,7 +175,7 @@ export const cryptoMarketKpis = pgTable("crypto_market_kpis", {
 });
 
 export const cryptoSyncRuns = pgTable("crypto_sync_runs", {
-  id: varchar("id", { length: 36 }).primaryKey().default("gen_random_uuid()"),
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
   provider: varchar("provider", { length: 32 }).notNull().default("coingecko"),
   syncType: varchar("sync_type", { length: 64 })
     .notNull()
@@ -193,7 +194,7 @@ export const cryptoSyncRuns = pgTable("crypto_sync_runs", {
 });
 
 export const auditLogs = pgTable("audit_logs", {
-  id: varchar("id", { length: 36 }).primaryKey().default("gen_random_uuid()"),
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
   actorUserId: text("actor_user_id").references(() => user.id, {
     onDelete: "set null",
   }),

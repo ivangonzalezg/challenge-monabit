@@ -4,15 +4,45 @@ import { admin } from "better-auth/plugins";
 import { db } from "../db/client";
 import * as schema from "../db/schema";
 import { auditLogs } from "../db/schema";
+import { sendEmail, isEmailDeliveryEnabled } from "./email";
+import { withDefaultCallbackURL } from "./redirect-url";
+
+const emailDeliveryEnabled = isEmailDeliveryEnabled();
+const webOrigin = process.env.WEB_ORIGIN ?? "http://localhost:5173";
 
 export const auth = betterAuth({
-  appName: "MonaBit",
+  appName: "MarketMint",
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: emailDeliveryEnabled,
+    sendResetPassword: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        subject: "Reset your MarketMint password",
+        template: "password-reset",
+        variables: {
+          url: withDefaultCallbackURL(url, `${webOrigin}/reset-password`),
+        },
+      });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: emailDeliveryEnabled,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        subject: "Verify your MarketMint email",
+        template: "email-verification",
+        variables: {
+          url: withDefaultCallbackURL(url, `${webOrigin}/verify-email`),
+        },
+      });
+    },
   },
   socialProviders: {
     google: {
@@ -39,8 +69,14 @@ export const auth = betterAuth({
               actorUserId,
               targetUserId: user.id,
               action: "USER_CREATED",
-              metadata: { email: user.email, role: (user as Record<string, unknown>).role ?? "user" },
-              ipAddress: ctx?.request?.headers?.get("x-forwarded-for") ?? ctx?.request?.headers?.get("x-real-ip") ?? null,
+              metadata: {
+                email: user.email,
+                role: (user as Record<string, unknown>).role ?? "user",
+              },
+              ipAddress:
+                ctx?.request?.headers?.get("x-forwarded-for") ??
+                ctx?.request?.headers?.get("x-real-ip") ??
+                null,
               userAgent: ctx?.request?.headers?.get("user-agent") ?? null,
             });
           }
@@ -55,7 +91,10 @@ export const auth = betterAuth({
             targetUserId: user.id,
             action: "USER_UPDATED",
             metadata: user,
-            ipAddress: ctx?.request?.headers?.get("x-forwarded-for") ?? ctx?.request?.headers?.get("x-real-ip") ?? null,
+            ipAddress:
+              ctx?.request?.headers?.get("x-forwarded-for") ??
+              ctx?.request?.headers?.get("x-real-ip") ??
+              null,
             userAgent: ctx?.request?.headers?.get("user-agent") ?? null,
           });
         },
@@ -69,7 +108,10 @@ export const auth = betterAuth({
             targetUserId: user.id,
             action: "USER_DELETED",
             metadata: { email: user.email },
-            ipAddress: ctx?.request?.headers?.get("x-forwarded-for") ?? ctx?.request?.headers?.get("x-real-ip") ?? null,
+            ipAddress:
+              ctx?.request?.headers?.get("x-forwarded-for") ??
+              ctx?.request?.headers?.get("x-real-ip") ??
+              null,
             userAgent: ctx?.request?.headers?.get("user-agent") ?? null,
           });
         },

@@ -2,9 +2,9 @@
 
 ## Overview
 
-MonaBit uses **Better Auth** as its internal authentication library. Better Auth runs inside the MonaBit backend and stores all authentication data in the project's own PostgreSQL database via the Drizzle adapter. It is not an external hosted authentication provider — it is closer to a library like Passport.js, but with a complete auth schema, session management, and provider integration built in.
+MarketMint uses **Better Auth** as its internal authentication library. Better Auth runs inside the MarketMint backend and stores all authentication data in the project's own PostgreSQL database via the Drizzle adapter. It is not an external hosted authentication provider — it is closer to a library like Passport.js, but with a complete auth schema, session management, and provider integration built in.
 
-MonaBit is not using Firebase Auth, Supabase Auth, Auth0, or Clerk.
+MarketMint is not using Firebase Auth, Supabase Auth, Auth0, or Clerk.
 
 ---
 
@@ -17,7 +17,7 @@ Instead of manually implementing:
 - custom session token generation and validation
 - custom Google OAuth handling
 
-MonaBit delegates these to Better Auth, which is a maintained, security-focused authentication library. This reduces security risk, simplifies the codebase, and lets the implementation focus on the application domain (crypto dashboard, user management, roles, audit logs).
+MarketMint delegates these to Better Auth, which is a maintained, security-focused authentication library. This reduces security risk, simplifies the codebase, and lets the implementation focus on the application domain (crypto dashboard, user management, roles, audit logs).
 
 ---
 
@@ -32,11 +32,11 @@ Better Auth manages the following concepts and their corresponding database tabl
 | `account` | Provider-linked accounts: email/password credentials, Google account linkage |
 | `verification` | Email/magic-link verification tokens |
 
-## What MonaBit owns
+## What MarketMint owns
 
-MonaBit extends the Better Auth user with application-level fields and maintains its own domain tables:
+MarketMint extends the Better Auth user with application-level fields and maintains its own domain tables:
 
-| MonaBit concept | Responsibility |
+| MarketMint concept | Responsibility |
 |---|---|
 | `user.role` | Application-level role: `user` or `admin` |
 | `user_profiles` | Extended profile: bio, country, timezone |
@@ -50,7 +50,7 @@ MonaBit extends the Better Auth user with application-level fields and maintains
 
 ## User roles and ban state
 
-Better Auth manages authentication. MonaBit manages application-level user state through the `role` field and Better Auth's native ban fields.
+Better Auth manages authentication. MarketMint manages application-level user state through the `role` field and Better Auth's native ban fields.
 
 ### Role
 
@@ -69,7 +69,7 @@ User blocking is handled natively by Better Auth's Admin plugin via three fields
 | `banReason` | `text` | Optional reason for the ban |
 | `banExpires` | `timestamp` | Optional expiry; `null` means permanent |
 
-Banned users are rejected at the `requireAuth` middleware level with a `403`. There is no separate `status` field — ban state is the canonical lifecycle flag. Users are never hard- or soft-deleted.
+Banned users are rejected at the `requireRole()` middleware level with a `403`. There is no separate `status` field — ban state is the canonical lifecycle flag. Users are never hard- or soft-deleted.
 
 ---
 
@@ -82,7 +82,7 @@ Better Auth uses **cookie-based sessions** for the browser application.
 - Secure HTTP-only cookies cannot be read by JavaScript, which reduces XSS exposure compared to storing tokens in `localStorage`.
 - Cookies work correctly in incognito/private browsing sessions and are cleared automatically when the private session ends.
 - Better Auth manages cookie creation, expiry, and rotation. No manual token generation or hashing is required.
-- Bearer token auth can be considered later if MonaBit adds non-browser API clients (mobile apps, CLI tools).
+- Bearer token auth can be considered later if MarketMint adds non-browser API clients (mobile apps, CLI tools).
 
 ---
 
@@ -100,25 +100,22 @@ Better Auth handles Google social login through its provider/account model. The 
 
 ## User management
 
-User management is implemented at `apps/api/src/modules/users/users.router.ts`, mounted at `/api/admin/users`. All endpoints require `role = admin`.
+User management is handled entirely by Better Auth's Admin plugin, mounted at `/api/auth/admin/*` alongside the rest of the auth API. No custom user-management router is implemented — Better Auth's native endpoints already cover every requirement.
 
-| Method | Path | Description |
+| Endpoint | Method | Purpose |
 |---|---|---|
-| `GET` | `/api/admin/users` | List all users (including banned) |
-| `GET` | `/api/admin/users/:id` | Get a single user |
-| `POST` | `/api/admin/users` | Create a user |
-| `PATCH` | `/api/admin/users/:id` | Update name and/or role |
-| `PATCH` | `/api/admin/users/:id/ban` | Ban or unban a user |
+| `/api/auth/admin/list-users` | POST | List users (filter, paginate) |
+| `/api/auth/admin/get-user` | POST | Get a single user |
+| `/api/auth/admin/create-user` | POST | Create a user |
+| `/api/auth/admin/update-user` | POST | Update name, role, etc. |
+| `/api/auth/admin/ban-user` | POST | Ban a user |
+| `/api/auth/admin/unban-user` | POST | Unban a user |
+| `/api/auth/admin/remove-user` | POST | Permanently delete a user |
+| `/api/auth/admin/set-user-password` | POST | Set a user's password |
+| `/api/auth/admin/list-user-sessions` | POST | List a user's active sessions |
+| `/api/auth/admin/revoke-user-session(s)` | POST | Revoke one or all sessions |
 
-Ban/unban is delegated to `auth.api.banUser` and `auth.api.unbanUser` from Better Auth's Admin plugin. Users are never deleted.
-
-### Request validation
-
-All write endpoints use Zod schemas defined at the top of the router and applied via a shared `validate` middleware (`apps/api/src/lib/validate.ts`). On failure, the middleware returns the first validation error only:
-
-```json
-{ "error": "Invalid email", "field": "email" }
-```
+Access to these endpoints is restricted to `role = admin` by the Admin plugin itself. `databaseHooks` in `apps/api/src/lib/auth.ts` write to `audit_logs` on user create/update/delete so admin actions remain traceable.
 
 ---
 
@@ -126,8 +123,7 @@ All write endpoints use Zod schemas defined at the top of the router and applied
 
 Implemented in `apps/api/src/lib/middleware.ts`:
 
-- **`requireAuth`** — validates an active Better Auth session and rejects banned users with `403`.
-- **`requireRole(role)`** — calls `requireAuth` then checks `user.role`.
+- **`requireRole(role?)`** — validates an active Better Auth session, rejects banned users with `403`, and (when a role is passed) checks `user.role` matches.
 
 ---
 
@@ -156,12 +152,14 @@ Better Auth is mounted at `/api/auth/*` in `apps/api/src/index.ts`.
 | `/api/auth/sign-in/social` | POST | Login with Google |
 | `/api/auth/sign-out` | POST | Logout, revoke session |
 | `/api/auth/get-session` | GET | Validate session and return user |
+| `/api/auth/forget-password` | POST | Request a password reset email |
+| `/api/auth/reset-password` | POST | Set a new password using the emailed token |
 
 ---
 
 ## Audit logs
 
-MonaBit maintains an `audit_logs` table for security and business events.
+MarketMint maintains an `audit_logs` table for security and business events.
 
 | Event | Trigger |
 |---|---|
@@ -194,8 +192,13 @@ BETTER_AUTH_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=example-google-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=example-google-client-secret
 
+# Resend
+RESEND_API_KEY=re_change-me
+RESEND_FROM_EMAIL=MarketMint <onboarding@resend.dev>
+
 # Server
 CORS_ORIGIN=http://localhost:5173
+WEB_ORIGIN=http://localhost:5173
 NODE_ENV=development
 PORT=3000
 ```
@@ -211,9 +214,11 @@ Never commit real values. All required keys are documented in `apps/api/.env.exa
 | Schema design | Implemented |
 | Better Auth setup | Implemented (`apps/api/src/lib/auth.ts`) |
 | Auth routes | Implemented (mounted at `/api/auth/*`) |
-| Session middleware | Implemented (`requireAuth`, `requireRole`) |
+| Session middleware | Implemented (`requireRole`) |
 | Google provider config | Implemented (requires env vars) |
-| Admin user management | Implemented (`/api/admin/users`) |
+| Admin user management | Implemented (Better Auth `/api/auth/admin/*`) |
 | Request validation (Zod) | Implemented (`validate` middleware) |
 | First admin bootstrap | Implemented (`bootstrapFirstAdmin`) |
+| Password reset (email) | Implemented (Better Auth + Resend) |
+| Email verification on sign-up | Implemented (Better Auth + Resend, conditional on `RESEND_API_KEY`) |
 | Frontend auth flow | Not yet implemented |
