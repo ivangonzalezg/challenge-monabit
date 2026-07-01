@@ -177,6 +177,7 @@ export async function runSync(trigger: SyncTrigger): Promise<SyncRunRow> {
           ethDominancePct: toDecimalString(kpis.ethDominancePct),
           usdtDominancePct: toDecimalString(kpis.usdtDominancePct),
           marketCapChangePct24h: toDecimalString(kpis.marketCapChangePct24h),
+          volumeChangePct24h: toDecimalString(kpis.volumeChangePct24h),
           providerUpdatedAt: toDate(kpis.providerUpdatedAt),
           lastSyncedAt: syncedAt,
         });

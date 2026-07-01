@@ -42,6 +42,7 @@ type CoinGeckoGlobalResponse = {
       usdt?: number | null;
     } | null;
     market_cap_change_percentage_24h_usd?: number | null;
+    volume_change_percentage_24h_usd?: number | null;
     updated_at?: number | null;
   };
 };
@@ -126,6 +127,7 @@ export class CoinGeckoProvider implements CryptoProvider {
       ethDominancePct: data.market_cap_percentage?.eth,
       usdtDominancePct: data.market_cap_percentage?.usdt,
       marketCapChangePct24h: data.market_cap_change_percentage_24h_usd,
+      volumeChangePct24h: data.volume_change_percentage_24h_usd,
       providerUpdatedAt: data.updated_at
         ? new Date(data.updated_at * 1000).toISOString()
         : undefined,

@@ -38,6 +38,7 @@ export type MarketKpis = {
   ethDominancePct?: number | null;
   usdtDominancePct?: number | null;
   marketCapChangePct24h?: number | null;
+  volumeChangePct24h?: number | null;
   providerUpdatedAt?: string | null;
   provider: CryptoProviderName;
 };

@@ -94,3 +94,22 @@ export {
   DropdownMenuSubContent,
 } from "./dropdown-menu"
 export { Skeleton } from "./skeleton"
+export {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartStyle,
+  type ChartConfig,
+} from "./chart"
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+} from "./table"

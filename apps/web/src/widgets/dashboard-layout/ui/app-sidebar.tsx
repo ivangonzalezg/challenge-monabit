@@ -88,7 +88,7 @@ function NavGroupSection({
                   isActive={isActive}
                   className={
                     isActive
-                      ? "rounded-sm border-r-3 border-sidebar-primary"
+                      ? "rounded-xs border-r-3 border-sidebar-primary"
                       : undefined
                   }
                 >

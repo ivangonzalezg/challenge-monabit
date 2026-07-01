@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { requireRole } from "../../lib/middleware";
 import { runSync, SyncInProgressError } from "./sync/crypto-sync.service";
+import { getDashboard, NoDashboardDataError } from "./dashboard/crypto-dashboard.service";
 
 export const cryptoRouter = Router();
 
@@ -31,6 +32,38 @@ cryptoRouter.post("/sync", requireRole("admin"), async (_req, res) => {
 
     res.status(500).json({
       error: "Sync failed",
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+/**
+ * @openapi
+ * /api/crypto/dashboard:
+ *   get:
+ *     summary: Get dashboard KPIs, top assets, and market trend
+ *     description: Any authenticated, non-banned user. Reads from crypto_market_kpis and crypto_assets — never calls CoinGecko directly.
+ *     tags: [Crypto]
+ *     responses:
+ *       200:
+ *         description: Dashboard data
+ *       503:
+ *         description: No crypto data available yet
+ *       500:
+ *         description: Failed to load dashboard
+ */
+cryptoRouter.get("/dashboard", requireRole(), async (_req, res) => {
+  try {
+    const dashboard = await getDashboard();
+    res.status(200).json(dashboard);
+  } catch (error) {
+    if (error instanceof NoDashboardDataError) {
+      res.status(503).json({ error: "No crypto data available yet" });
+      return;
+    }
+
+    res.status(500).json({
+      error: "Failed to load dashboard",
       message: error instanceof Error ? error.message : String(error),
     });
   }
