@@ -12,4 +12,15 @@ export {
 } from "./card"
 export { Alert, AlertTitle, AlertDescription } from "./alert"
 export { Separator } from "./separator"
-export { Field, FieldLabel, FieldError } from "./field"
+export { Field, FieldLabel, FieldError, FieldDescription } from "./field"
+export {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./alert-dialog"

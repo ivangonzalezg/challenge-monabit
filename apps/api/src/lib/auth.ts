@@ -39,7 +39,7 @@ export const auth = betterAuth({
         subject: "Verify your MarketMint email",
         template: "email-verification",
         variables: {
-          url: withDefaultCallbackURL(url, `${webOrigin}/verify-email`),
+          url: withDefaultCallbackURL(url, `${webOrigin}/email-confirmed`),
         },
       });
     },
