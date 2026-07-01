@@ -2,7 +2,8 @@ import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { CircleAlert, Eye, EyeOff } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
-import { useNavigate } from "react-router"
+import { useNavigate, useSearchParams } from "react-router"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { AuthLayout } from "@/widgets/auth-layout"
@@ -21,75 +22,96 @@ import {
   FieldError,
   FieldLabel,
   Input,
-  Separator,
 } from "@/shared/ui"
-import { google, icon } from "@/shared/assets"
+import { icon } from "@/shared/assets"
 
-const registerSchema = z
+const resetPasswordSchema = z
   .object({
-    name: z.string().min(1, "Ingresa tu nombre."),
-    email: z.string().email("Ingresa un correo válido."),
-    password: z.string().min(8, "Mínimo 8 caracteres."),
+    newPassword: z.string().min(8, "Mínimo 8 caracteres."),
     confirmPassword: z.string().min(1, "Confirma tu contraseña."),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Las contraseñas no coinciden.",
     path: ["confirmPassword"],
   })
 
-type RegisterFormValues = z.infer<typeof registerSchema>
+type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
 
-export function RegisterPage() {
+export function ResetPasswordPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get("token")
+  const urlError = searchParams.get("error")
+
+  const [tokenInvalid, setTokenInvalid] = useState(
+    !token || urlError === "INVALID_TOKEN"
+  )
   const [formError, setFormError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const form = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
+  const form = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { newPassword: "", confirmPassword: "" },
     mode: "onBlur",
     reValidateMode: "onChange",
   })
 
-  const onSubmit = async (values: RegisterFormValues) => {
+  const onSubmit = async (values: ResetPasswordFormValues) => {
     setFormError(null)
 
-    const { error } = await authClient.signUp.email({
-      name: values.name,
-      email: values.email,
-      password: values.password,
-      callbackURL: "/",
+    const { error } = await authClient.resetPassword({
+      newPassword: values.newPassword,
+      token: token ?? "",
     })
 
     if (error) {
-      if (error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
-        setFormError("Ya existe una cuenta con este correo.")
-      } else {
-        setFormError("No se pudo crear la cuenta. Intenta de nuevo.")
+      if (error.code === "INVALID_TOKEN") {
+        setTokenInvalid(true)
+        return
       }
+      setFormError("No se pudo restablecer la contraseña. Intenta de nuevo.")
       return
     }
 
-    navigate(`/register/success?email=${encodeURIComponent(values.email)}`)
+    toast.success("Contraseña actualizada correctamente.")
+    navigate("/login")
   }
 
-  const handleGoogleSignIn = () => {
-    authClient.signIn.social({ provider: "google", callbackURL: "/" })
+  if (tokenInvalid) {
+    return (
+      <AuthLayout>
+        <CardHeader className="items-center text-center">
+          <img src={icon} alt="MarketMint" className="mx-auto mb-2 h-12 w-12" />
+          <CardTitle>Enlace inválido o expirado</CardTitle>
+          <CardDescription>
+            Este enlace para restablecer tu contraseña ya no es válido. Solicita
+            uno nuevo para continuar.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <Button
+            className="w-full"
+            onClick={() => navigate("/forgot-password")}
+          >
+            Solicitar nuevo enlace
+          </Button>
+        </CardContent>
+
+        <CardFooter />
+      </AuthLayout>
+    )
   }
 
   return (
     <AuthLayout>
       <CardHeader className="items-center text-center">
         <img src={icon} alt="MarketMint" className="mx-auto mb-2 h-12 w-12" />
-        <CardTitle>Crea tu cuenta de MarketMint</CardTitle>
+        <CardTitle>Restablece tu contraseña</CardTitle>
         <CardDescription>
-          Empieza a seguir el mercado cripto desde tu panel privado.
+          Ingresa tu nueva contraseña para recuperar el acceso a tu cuenta de
+          MarketMint.
         </CardDescription>
       </CardHeader>
 
@@ -107,50 +129,11 @@ export function RegisterPage() {
           noValidate
         >
           <Controller
-            name="name"
+            name="newPassword"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Nombre</FieldLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  autoComplete="name"
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
-                ) : null}
-              </Field>
-            )}
-          />
-
-          <Controller
-            name="email"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Correo electrónico</FieldLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  type="email"
-                  autoComplete="email"
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
-                ) : null}
-              </Field>
-            )}
-          />
-
-          <Controller
-            name="password"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Contraseña</FieldLabel>
+                <FieldLabel htmlFor={field.name}>Nueva contraseña</FieldLabel>
                 <div className="relative">
                   <Input
                     {...field}
@@ -226,35 +209,14 @@ export function RegisterPage() {
             disabled={form.formState.isSubmitting}
             className="w-full"
           >
-            {form.formState.isSubmitting ? "Creando cuenta…" : "Crear cuenta"}
+            {form.formState.isSubmitting
+              ? "Restableciendo…"
+              : "Restablecer contraseña"}
           </Button>
         </form>
-
-        <div className="relative flex items-center py-2">
-          <Separator className="flex-1" />
-          <span className="mx-4 shrink-0 text-xs tracking-wider text-muted-foreground uppercase">
-            O continúa con
-          </span>
-          <Separator className="flex-1" />
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleGoogleSignIn}
-          className="w-full"
-        >
-          <img src={google} alt="" className="size-5" />
-          Google
-        </Button>
       </CardContent>
 
-      <CardFooter className="justify-center gap-1 text-sm">
-        <span className="text-muted-foreground">¿Ya tienes una cuenta?</span>
-        <a href="/login" className="font-medium text-primary hover:underline">
-          Inicia sesión
-        </a>
-      </CardFooter>
+      <CardFooter />
     </AuthLayout>
   )
 }

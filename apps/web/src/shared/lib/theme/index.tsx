@@ -228,3 +228,28 @@ export const useTheme = () => {
 
   return context
 }
+
+export function useResolvedTheme(): ResolvedTheme {
+  const { theme } = useTheme()
+  const [systemTheme, setSystemTheme] =
+    React.useState<ResolvedTheme>(getSystemTheme)
+
+  React.useEffect(() => {
+    if (theme !== "system") {
+      return undefined
+    }
+
+    const mediaQuery = window.matchMedia(COLOR_SCHEME_QUERY)
+    const handleChange = () => {
+      setSystemTheme(getSystemTheme())
+    }
+
+    mediaQuery.addEventListener("change", handleChange)
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange)
+    }
+  }, [theme])
+
+  return theme === "system" ? systemTheme : theme
+}

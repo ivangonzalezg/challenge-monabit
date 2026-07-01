@@ -1,0 +1,1 @@
+export { ForgotPasswordSuccessPage } from "./ui"
