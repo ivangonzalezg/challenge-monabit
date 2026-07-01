@@ -1,8 +1,9 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, lt, sql } from "drizzle-orm";
 import { pool } from "../../../db/client";
 import {
   cryptoAssets,
+  cryptoAssetSnapshots,
   cryptoMarketKpis,
   cryptoSyncRuns,
 } from "../../../db/schema";
@@ -65,6 +66,44 @@ function mapItemToAssetRow(item: CryptoMarketItem, syncedAt: Date) {
   };
 }
 
+function mapItemToSnapshotRow(item: CryptoMarketItem, syncRunId: string, snapshotAt: Date) {
+  const assetRow = mapItemToAssetRow(item, snapshotAt);
+  return {
+    syncRunId,
+    provider: assetRow.provider,
+    providerAssetId: assetRow.providerAssetId,
+    symbol: assetRow.symbol,
+    name: assetRow.name,
+    marketCapRank: assetRow.marketCapRank,
+    currentPriceUsd: assetRow.currentPriceUsd,
+    marketCapUsd: assetRow.marketCapUsd,
+    totalVolumeUsd: assetRow.totalVolumeUsd,
+    high24hUsd: assetRow.high24hUsd,
+    low24hUsd: assetRow.low24hUsd,
+    priceChange24hUsd: assetRow.priceChange24hUsd,
+    priceChangePct1h: assetRow.priceChangePct1h,
+    priceChangePct24h: assetRow.priceChangePct24h,
+    priceChangePct7d: assetRow.priceChangePct7d,
+    circulatingSupply: assetRow.circulatingSupply,
+    totalSupply: assetRow.totalSupply,
+    maxSupply: assetRow.maxSupply,
+    athUsd: assetRow.athUsd,
+    athChangePct: assetRow.athChangePct,
+    athDate: assetRow.athDate,
+    atlUsd: assetRow.atlUsd,
+    atlChangePct: assetRow.atlChangePct,
+    atlDate: assetRow.atlDate,
+    sparkline7d: assetRow.sparkline7d,
+    providerUpdatedAt: assetRow.providerUpdatedAt,
+    snapshotAt,
+  };
+}
+
+function snapshotRetentionCutoff(): Date {
+  const days = Number(process.env.CRYPTO_SNAPSHOT_RETENTION_DAYS ?? "180") || 180;
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+}
+
 export async function runSync(trigger: SyncTrigger): Promise<SyncRunRow> {
   const client = await pool.connect();
   const db = drizzle(client);
@@ -109,6 +148,12 @@ export async function runSync(trigger: SyncTrigger): Promise<SyncRunRow> {
           });
         }
 
+        if (items.length > 0) {
+          await db
+            .insert(cryptoAssetSnapshots)
+            .values(items.map((item) => mapItemToSnapshotRow(item, run.id, syncedAt)));
+        }
+
         const fetchedIds = items.map((item) => item.id);
         if (fetchedIds.length > 0) {
           await db
@@ -135,6 +180,10 @@ export async function runSync(trigger: SyncTrigger): Promise<SyncRunRow> {
           providerUpdatedAt: toDate(kpis.providerUpdatedAt),
           lastSyncedAt: syncedAt,
         });
+
+        await db
+          .delete(cryptoAssetSnapshots)
+          .where(lt(cryptoAssetSnapshots.snapshotAt, snapshotRetentionCutoff()));
 
         const [finished] = await db
           .update(cryptoSyncRuns)

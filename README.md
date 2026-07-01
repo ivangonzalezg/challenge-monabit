@@ -182,8 +182,8 @@ See [apps/api/.env.example](apps/api/.env.example) and [apps/web/.env.example](a
 | `CRYPTO_PROVIDER` | Crypto data provider (default `coingecko`) |
 | `COINGECKO_API_BASE_URL` | CoinGecko base URL |
 | `COINGECKO_API_KEY` | CoinGecko API key |
-| `CRYPTO_SYNC_SECRET` | Internal secret for the crypto sync endpoint |
 | `CRYPTO_SYNC_INTERVAL_MINUTES` | How often crypto data is synced in minutes (default `5`) |
+| `CRYPTO_SNAPSHOT_RETENTION_DAYS` | How many days of per-asset price history to retain before pruning (default `180`) |
 | `CRYPTO_DATA_STALE_AFTER_MINUTES` | Minutes after which cached crypto data is considered stale (default `15`) |
 | `FIRST_ADMIN_EMAIL` | Email for the first admin (bootstrap only, optional) |
 | `FIRST_ADMIN_PASSWORD` | Password for the first admin (bootstrap only, optional) |

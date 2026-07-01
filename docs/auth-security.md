@@ -39,11 +39,11 @@ MarketMint extends the Better Auth user with application-level fields and mainta
 | MarketMint concept | Responsibility |
 |---|---|
 | `user.role` | Application-level role: `user` or `admin` |
-| `user_profiles` | Extended profile: bio, country, timezone |
 | `user_favorite_cryptos` | User-bookmarked crypto assets |
 | `audit_logs` | Application audit trail for auth and admin events |
-| `crypto_assets` | Local synchronized crypto market catalog |
-| `crypto_market_kpis` | Global market KPIs |
+| `crypto_assets` | Local synchronized crypto market catalog (current state) |
+| `crypto_asset_snapshots` | Append-only per-asset price history |
+| `crypto_market_kpis` | Global market KPIs (append-only history) |
 | `crypto_sync_runs` | Sync operation log |
 
 ---

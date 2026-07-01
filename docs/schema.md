@@ -8,7 +8,7 @@ Authentication is handled by **Better Auth**, an internal backend library. Bette
 
 The schema is represented in [`schema.dbml`](./schema.dbml) (visualize at [dbdiagram.io](https://dbdiagram.io)).
 
-See [`docs/auth-security.md`](../auth-security.md) for the full authentication design.
+See [`docs/auth-security.md`](./auth-security.md) for the full authentication design.
 
 ---
 
@@ -42,7 +42,7 @@ Better Auth uses secure HTTP-only cookies for browser sessions. Tokens are not s
 
 ### Local synchronized crypto catalog
 
-The backend fetches up to 250 assets from CoinGecko every 10 minutes and stores them in `crypto_assets`. The frontend never calls CoinGecko directly. All dashboard data, search, favorites, and alerts operate against this local catalog.
+The backend fetches up to 250 assets from CoinGecko on a configurable interval (`CRYPTO_SYNC_INTERVAL_MINUTES`, default 5 minutes) and stores them in `crypto_assets`. The frontend never calls CoinGecko directly. All dashboard data, search, favorites, and alerts operate against this local catalog. Each sync also writes a permanent snapshot of every asset to `crypto_asset_snapshots`, so price history is preserved even though `crypto_assets` itself is overwritten every sync.
 
 ### MVP currency: USD only
 
@@ -54,7 +54,7 @@ All monetary values are in USD. Multi-currency support is a future improvement.
 
 - **Delegate standard auth to Better Auth.** Password hashing, session management, and OAuth provider handling are Better Auth's responsibility. MarketMint does not reinvent these.
 - **Extend, don't duplicate.** MarketMint adds application-level fields (`role`, `banned`, `banReason`, `banExpires`) to the Better Auth user. It does not create a competing user table.
-- **All user references use the Better Auth user id.** `user_profiles`, `user_favorite_cryptos`, `audit_logs`, and `price_alerts` all reference `user.id` from Better Auth as the canonical user identifier.
+- **All user references use the Better Auth user id.** `user_favorite_cryptos`, `audit_logs`, and `price_alerts` all reference `user.id` from Better Auth as the canonical user identifier.
 - **Crypto market data is shared, backend-owned data.** Prices and KPIs are populated by the sync process on a schedule, not on user request.
 - **Keep admin-editable fields limited.** Admins can update `name`, `role`, and ban state. They cannot touch credentials, provider accounts, or `created_at`.
 - **USD is fixed for the MVP.**
@@ -95,23 +95,6 @@ Users are never deleted. Banning is the only lifecycle action available to admin
 
 ---
 
-### `user_profiles`
-
-**Purpose:** Extended profile data. One-to-one with the Better Auth `user`.
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | varchar | Primary key. |
-| `user_id` | varchar | References Better Auth `user.id`. One-to-one. |
-| `display_name` | varchar | Optional public name. |
-| `bio` | varchar | Short biography. |
-| `country` | varchar | ISO 3166-1 alpha-2 (e.g. `CO`, `US`). |
-| `timezone` | varchar | IANA timezone (e.g. `America/Bogota`). |
-| `created_at` | timestamp | |
-| `updated_at` | timestamp | |
-
----
-
 ### `user_favorite_cryptos`
 
 **Purpose:** User-to-asset relationship for bookmarked cryptocurrencies. No market values — current prices are resolved from `crypto_assets` at query time.
@@ -135,7 +118,7 @@ Users are never deleted. Banning is the only lifecycle action available to admin
 
 ### `crypto_assets`
 
-**Purpose:** Local synchronized crypto market catalog. Up to 250 assets from CoinGecko, upserted every 10 minutes. Single source for dashboard Top 10, local search, favorites resolution, and price alert evaluation.
+**Purpose:** Local synchronized crypto market catalog. Up to 250 assets from CoinGecko, upserted on a `CRYPTO_SYNC_INTERVAL_MINUTES` interval (default 5 minutes). Single source for dashboard Top 10, local search, favorites resolution, and price alert evaluation. This table only ever holds each asset's *current* state — see `crypto_asset_snapshots` below for historical data.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -180,9 +163,49 @@ GET /api/v3/coins/markets
 
 ---
 
+### `crypto_asset_snapshots`
+
+**Purpose:** Append-only price/market-data history. One row per asset per sync run — never updated or upserted, unlike `crypto_assets`. Preserves the data `crypto_assets` would otherwise lose on every sync, enabling future price charts. Rows older than `CRYPTO_SNAPSHOT_RETENTION_DAYS` (default 180) are pruned at the end of every successful sync.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | varchar | Primary key. |
+| `sync_run_id` | varchar | FK → `crypto_sync_runs.id`. `ON DELETE CASCADE`. |
+| `provider` | varchar | `coingecko`. |
+| `provider_asset_id` | varchar | CoinGecko coin ID. **Not unique** — many rows accumulate per asset over time. |
+| `symbol` | varchar | |
+| `name` | varchar | |
+| `market_cap_rank` | integer | |
+| `current_price_usd` | numeric | |
+| `market_cap_usd` | numeric | |
+| `total_volume_usd` | numeric | |
+| `high_24h_usd` | numeric | |
+| `low_24h_usd` | numeric | |
+| `price_change_24h_usd` | numeric | |
+| `price_change_pct_1h` | numeric | |
+| `price_change_pct_24h` | numeric | |
+| `price_change_pct_7d` | numeric | |
+| `circulating_supply` | numeric | |
+| `total_supply` | numeric | |
+| `max_supply` | numeric | Null if unlimited. |
+| `ath_usd` | numeric | All-time high. |
+| `ath_change_pct` | numeric | |
+| `ath_date` | timestamp | |
+| `atl_usd` | numeric | All-time low. |
+| `atl_change_pct` | numeric | |
+| `atl_date` | timestamp | |
+| `sparkline_7d` | jsonb | |
+| `provider_updated_at` | timestamp | |
+| `snapshot_at` | timestamp | When this snapshot was taken (shared by every asset row from the same sync run). |
+| `created_at` | timestamp | |
+
+**Index:** `(provider_asset_id, snapshot_at)` — supports future per-asset history queries and the retention prune.
+
+---
+
 ### `crypto_market_kpis`
 
-**Purpose:** Global market KPIs from CoinGecko `/global`. Used for dashboard KPI cards. Describes the whole market, not individual assets.
+**Purpose:** Global market KPIs from CoinGecko `/global`. Used for dashboard KPI cards. Describes the whole market, not individual assets. Append-only, like `crypto_asset_snapshots` — each sync inserts a new row rather than upserting, so KPI history is preserved. The "current" KPIs are the most recent row by `created_at`.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -196,7 +219,7 @@ GET /api/v3/coins/markets
 | `eth_dominance_pct` | numeric | |
 | `usdt_dominance_pct` | numeric | |
 | `market_cap_change_pct_24h` | numeric | |
-| `volume_change_pct_24h` | numeric | |
+| `volume_change_pct_24h` | numeric | Currently always `null` — CoinGecko's `/global` endpoint has no equivalent field on any plan tier. |
 | `provider_updated_at` | timestamp | |
 | `last_synced_at` | timestamp | |
 | `created_at` | timestamp | |
@@ -214,18 +237,17 @@ GET /api/v3/coins/markets
 |---|---|---|
 | `id` | varchar | Primary key. |
 | `provider` | varchar | `coingecko`. |
-| `sync_type` | varchar | `market_dashboard`. |
-| `status` | varchar | `success`, `failed`, or `partial_success`. |
+| `trigger` | varchar | `manual` or `scheduled`. |
+| `status` | varchar | `running`, `success`, or `failed`. |
 | `started_at` | timestamp | |
 | `finished_at` | timestamp | |
-| `duration_ms` | integer | |
-| `endpoints_used` | jsonb | e.g. `["/coins/markets", "/global"]`. |
-| `calls_used` | integer | Expected: 2 per sync. |
 | `assets_requested` | integer | Expected: 250. |
 | `assets_updated` | integer | |
 | `kpis_updated` | boolean | |
 | `error_message` | varchar | |
 | `created_at` | timestamp | |
+
+Concurrency is enforced with a Postgres advisory lock held for the duration of the sync (not a timestamp heuristic), so at most one sync run is ever `running` at a time.
 
 ---
 
@@ -288,33 +310,37 @@ GET /api/v3/coins/markets
 
 | Actor | Permission |
 |---|---|
-| Authenticated user | Read/write own `user_profiles`, `user_favorite_cryptos`, `price_alerts` |
+| Authenticated user | Read/write own `user_favorite_cryptos`, `price_alerts` |
 | Authenticated user | Read `crypto_assets` and `crypto_market_kpis` via backend API |
 | Authenticated user | Cannot read other users' data |
 | Admin | List and read all users (via Better Auth admin or custom endpoint) |
 | Admin | Update `name`, `role`, `status` on any user |
 | Admin | Block, unblock, deactivate, delete users |
 | Admin | Cannot modify Better Auth-owned credential or provider fields |
-| Backend only | Write `crypto_assets`, `crypto_market_kpis`, `crypto_sync_runs`, `audit_logs` |
+| Admin | Trigger a manual sync via `POST /api/crypto/sync` |
+| Backend only | Write `crypto_assets`, `crypto_asset_snapshots`, `crypto_market_kpis`, `crypto_sync_runs`, `audit_logs` |
 | Backend only | Communicate with CoinGecko — never the frontend |
 
 ---
 
 ## Crypto Data Synchronization
 
-### Sync flow
+### Sync flow (implemented)
 
 ```
-Scheduled job or internal trigger
-→ POST /api/internal/crypto/sync  (protected by CRYPTO_SYNC_SECRET)
+node-cron tick (every CRYPTO_SYNC_INTERVAL_MINUTES) OR POST /api/crypto/sync (admin-only, requireRole("admin"))
+→ Acquire a Postgres advisory lock (pg_try_advisory_lock); if already held, reject (409 for the manual route, skipped for the scheduler tick)
+→ Insert a crypto_sync_runs record with status = "running"
 → Backend calls CoinGecko GET /coins/markets (per_page=250, vs_currency=usd)
 → Backend calls CoinGecko GET /global
 → Backend normalizes responses
 → Backend upserts crypto_assets (one row per coin, up to 250)
-→ Backend marks assets absent from response as is_active = false
-→ Backend upserts crypto_market_kpis
-→ Backend inserts crypto_sync_runs record
-→ Dashboard reads from the database
+→ Backend inserts one crypto_asset_snapshots row per coin (append-only, never overwritten)
+→ Backend marks crypto_assets rows for this provider absent from the response as is_active = false
+→ Backend inserts a new crypto_market_kpis row (append-only)
+→ Backend prunes crypto_asset_snapshots rows older than CRYPTO_SNAPSHOT_RETENTION_DAYS
+→ Backend updates the crypto_sync_runs record to status = "success" (or "failed" with error_message)
+→ Release the advisory lock
 ```
 
 One complete sync uses **2 CoinGecko API calls**.
@@ -330,7 +356,10 @@ One complete sync uses **2 CoinGecko API calls**.
 
 Stays within a 10,000 monthly call budget.
 
-### Dashboard read flow
+### Dashboard read flow, local search, and favorites (planned, not yet implemented)
+
+The following flows describe intended behavior for future work — no route currently
+implements them. Only `GET /api/health` and `POST /api/crypto/sync` exist today.
 
 ```
 GET /api/crypto/dashboard
@@ -342,16 +371,12 @@ GET /api/crypto/dashboard
 
 **Stale threshold:** `is_stale = true` if `last_synced_at` is older than 15 minutes.
 
-### Local search flow
-
 ```
 GET /api/crypto/assets/search?q=...
 → requireRole()
 → Backend queries crypto_assets WHERE is_active = true AND (name ILIKE or symbol ILIKE)
 → No CoinGecko call
 ```
-
-### Favorites flows
 
 ```
 POST /api/me/favorite-cryptos/:providerAssetId
@@ -401,8 +426,8 @@ PORT=3000
 CRYPTO_PROVIDER=coingecko
 COINGECKO_API_BASE_URL=https://api.coingecko.com/api/v3
 COINGECKO_API_KEY=example-coingecko-api-key
-CRYPTO_SYNC_SECRET=example-internal-sync-secret
 CRYPTO_SYNC_INTERVAL_MINUTES=5
+CRYPTO_SNAPSHOT_RETENTION_DAYS=180
 CRYPTO_DATA_STALE_AFTER_MINUTES=15
 ```
 
@@ -411,7 +436,7 @@ CRYPTO_DATA_STALE_AFTER_MINUTES=15
 ## Future Improvements
 
 - **Price alert notification delivery** — email or push when an alert triggers.
-- **Historical market data** — time-series storage for longer-period charts.
+- **Read/query API for `crypto_asset_snapshots`** — a chart endpoint consuming the price history that's now being recorded (storage is implemented; no read API exists yet).
 - **Audit log retention policy** — archive or purge old records.
 - **Per-asset sync granularity** — on-demand detail sync for a coin detail view.
 - **Email verification flow** — require email verification before allowing login.

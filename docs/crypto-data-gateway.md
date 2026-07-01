@@ -13,7 +13,7 @@ apps/api
    ├─ crypto.types.ts                Re-exports shared domain types
    └─ providers/
       ├─ crypto-provider.interface.ts   Contract every provider must satisfy
-      └─ coingecko.provider.ts          CoinGecko implementation (stub)
+      └─ coingecko.provider.ts          CoinGecko implementation
 ```
 
 ### `CryptoProvider` interface

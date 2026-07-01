@@ -8,6 +8,7 @@ import {
   numeric,
   jsonb,
   unique,
+  index,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -131,6 +132,55 @@ export const cryptoAssets = pgTable("crypto_assets", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+export const cryptoAssetSnapshots = pgTable(
+  "crypto_asset_snapshots",
+  {
+    id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
+    syncRunId: varchar("sync_run_id", { length: 36 })
+      .notNull()
+      .references(() => cryptoSyncRuns.id, { onDelete: "cascade" }),
+    provider: varchar("provider", { length: 32 }).notNull().default("coingecko"),
+    providerAssetId: varchar("provider_asset_id", { length: 64 }).notNull(),
+    symbol: varchar("symbol", { length: 16 }).notNull(),
+    name: varchar("name", { length: 128 }).notNull(),
+    marketCapRank: integer("market_cap_rank"),
+    currentPriceUsd: numeric("current_price_usd", {
+      precision: 24,
+      scale: 8,
+    }).notNull(),
+    marketCapUsd: numeric("market_cap_usd", { precision: 30, scale: 2 }),
+    totalVolumeUsd: numeric("total_volume_usd", { precision: 30, scale: 2 }),
+    high24hUsd: numeric("high_24h_usd", { precision: 24, scale: 8 }),
+    low24hUsd: numeric("low_24h_usd", { precision: 24, scale: 8 }),
+    priceChange24hUsd: numeric("price_change_24h_usd", {
+      precision: 24,
+      scale: 8,
+    }),
+    priceChangePct1h: numeric("price_change_pct_1h", { precision: 20, scale: 4 }),
+    priceChangePct24h: numeric("price_change_pct_24h", {
+      precision: 20,
+      scale: 4,
+    }),
+    priceChangePct7d: numeric("price_change_pct_7d", { precision: 20, scale: 4 }),
+    circulatingSupply: numeric("circulating_supply", { precision: 30, scale: 4 }),
+    totalSupply: numeric("total_supply", { precision: 30, scale: 4 }),
+    maxSupply: numeric("max_supply", { precision: 30, scale: 4 }),
+    athUsd: numeric("ath_usd", { precision: 24, scale: 8 }),
+    athChangePct: numeric("ath_change_pct", { precision: 20, scale: 4 }),
+    athDate: timestamp("ath_date"),
+    atlUsd: numeric("atl_usd", { precision: 24, scale: 8 }),
+    atlChangePct: numeric("atl_change_pct", { precision: 20, scale: 4 }),
+    atlDate: timestamp("atl_date"),
+    sparkline7d: jsonb("sparkline_7d"),
+    providerUpdatedAt: timestamp("provider_updated_at"),
+    snapshotAt: timestamp("snapshot_at").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_crypto_asset_snapshots_asset_time").on(t.providerAssetId, t.snapshotAt),
+  ],
+);
 
 export const cryptoMarketKpis = pgTable("crypto_market_kpis", {
   id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),

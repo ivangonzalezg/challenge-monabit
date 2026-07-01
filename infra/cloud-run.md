@@ -34,6 +34,8 @@ All runtime configuration is injected through Cloud Run environment variables or
 | `CRYPTO_PROVIDER` | Cloud Run environment variable |
 | `COINGECKO_API_BASE_URL` | Cloud Run environment variable |
 | `COINGECKO_API_KEY` | Cloud Run secret (Secret Manager) |
+| `CRYPTO_SYNC_INTERVAL_MINUTES` | Cloud Run environment variable |
+| `CRYPTO_SNAPSHOT_RETENTION_DAYS` | Cloud Run environment variable |
 | `FIRST_ADMIN_EMAIL` | Cloud Run environment variable (remove after first deploy) |
 | `FIRST_ADMIN_PASSWORD` | Cloud Run secret (remove after first deploy) |
 | `FIRST_ADMIN_NAME` | Cloud Run environment variable (optional) |
