@@ -1,9 +1,9 @@
 import { Fragment, useEffect, useState } from "react"
 
-import { useAssets, useFavoriteToggle } from "../model"
+import { AssetsTable, useFavoriteToggle } from "@/entities/crypto-asset"
+import { useAssets } from "../model"
 import type { AssetSortBy, PaginatedAsset } from "../model/types"
 import { AssetControls } from "./asset-controls"
-import { AssetsTable } from "./assets-table"
 import {
   Button,
   Card,

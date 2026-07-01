@@ -2,6 +2,7 @@ import { Star } from "lucide-react"
 
 import { formatUsdCompact } from "@/shared/lib/format"
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -72,15 +73,17 @@ export function AssetsTable({ assets, onToggleFavorite }: AssetsTableProps) {
               {formatUsdCompact(asset.totalVolumeUsd)}
             </TableCell>
             <TableCell className="text-center">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => onToggleFavorite(asset)}
                 aria-label={
                   asset.isFavorite
                     ? "Quitar de favoritos"
                     : "Agregar a favoritos"
                 }
-                className="text-muted-foreground transition-colors hover:text-emerald-600"
+                className="text-muted-foreground hover:text-emerald-600"
               >
                 <Star
                   className={
@@ -89,7 +92,7 @@ export function AssetsTable({ assets, onToggleFavorite }: AssetsTableProps) {
                       : "size-4"
                   }
                 />
-              </button>
+              </Button>
             </TableCell>
           </TableRow>
         ))}

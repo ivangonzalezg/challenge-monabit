@@ -1,15 +1,6 @@
-export type AssetSortBy = "marketCap" | "price" | "change24h" | "volume24h"
+export type { AssetSortBy, PaginatedAsset } from "@/entities/crypto-asset"
 
-export type PaginatedAsset = {
-  providerAssetId: string
-  symbol: string
-  name: string
-  currentPriceUsd: number
-  priceChangePct24h: number | null
-  marketCapUsd: number | null
-  totalVolumeUsd: number | null
-  isFavorite: boolean
-}
+import type { PaginatedAsset } from "@/entities/crypto-asset"
 
 export type PaginatedAssetsResponse = {
   items: PaginatedAsset[]
