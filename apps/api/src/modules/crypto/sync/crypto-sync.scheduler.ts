@@ -6,9 +6,16 @@ export function startCryptoSyncScheduler(): void {
   const expression = `*/${minutes} * * * *`;
 
   cron.schedule(expression, () => {
-    return runSync("scheduled").catch((error) => {
-      console.error("[crypto-sync] scheduled run failed:", error);
-    });
+    console.log(`[crypto-sync] ${new Date().toISOString()} scheduled run triggered`);
+    return runSync("scheduled")
+      .then((result) => {
+        console.log(
+          `[crypto-sync] ${new Date().toISOString()} scheduled run succeeded: status=${result.status} assetsUpdated=${result.assetsUpdated}`,
+        );
+      })
+      .catch((error) => {
+        console.error(`[crypto-sync] ${new Date().toISOString()} scheduled run failed:`, error);
+      });
   });
 
   console.log(`[crypto-sync] scheduler started (every ${minutes} minute(s))`);
