@@ -1,0 +1,1 @@
+export { AdminCryptoSyncPage } from "./ui"
