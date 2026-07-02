@@ -30,7 +30,10 @@ const options: swaggerJsdoc.Options = {
     },
   },
   apis: [
-    path.join(__dirname, "../modules/**/*.ts"),
+    path.join(
+      __dirname,
+      `../modules/**/*.${__filename.endsWith(".ts") ? "ts" : "js"}`,
+    ),
     path.join(__dirname, "../docs/auth.yaml"),
   ],
 };
