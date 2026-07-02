@@ -7,6 +7,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { bootstrapFirstAdmin } from "./lib/bootstrap";
 import { cryptoRouter } from "./modules/crypto/crypto.routes";
+import { adminAuditLogsRouter } from "./modules/admin/admin-audit-logs.routes";
 import { startCryptoSyncScheduler } from "./modules/crypto/sync/crypto-sync.scheduler";
 
 
@@ -37,6 +38,7 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(express.json());
 
 app.use("/api/crypto", cryptoRouter);
+app.use("/api/admin", adminAuditLogsRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({
