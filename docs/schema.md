@@ -86,7 +86,7 @@ Better Auth owns this table. MarketMint adds these columns via the Drizzle schem
 
 | Column | Type | Notes |
 |---|---|---|
-| `role` | text | `user` or `admin`. Default: `user`. Admin-editable. |
+| `role` | text | `user` or `admin`. Defaults to `user` via Better Auth's `defaultRole` config (app-layer default, not a DB column default). Admin-editable. |
 | `banned` | boolean | Whether the user is currently banned. Managed by Better Auth Admin plugin. |
 | `ban_reason` | text | Optional reason for the ban. |
 | `ban_expires` | timestamp | Optional expiry. `null` means permanent. |
