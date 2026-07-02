@@ -190,7 +190,4 @@ See [apps/api/.env.example](apps/api/.env.example) and [apps/web/.env.example](a
 
 ## Documentation
 
-- [Architecture](docs/architecture.md)
-- [Database Schema](docs/schema.md)
-- [Auth & Security](docs/auth-security.md)
-- [Crypto Data Gateway](docs/crypto-data-gateway.md)
+- [README.md](docs/README.md)
