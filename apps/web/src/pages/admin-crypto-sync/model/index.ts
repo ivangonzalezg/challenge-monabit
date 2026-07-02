@@ -51,7 +51,9 @@ export function useTriggerSync() {
     mutationFn: triggerSync,
     onSuccess: ({ run }) => {
       queryClient.invalidateQueries({ queryKey: SYNC_STATS_QUERY_KEY })
-      toast.success(`Sincronización completada — ${run.assetsUpdated ?? 0} activos actualizados.`)
+      toast.success(
+        `Sincronización completada — ${run.assetsUpdated ?? 0} activos actualizados.`
+      )
     },
     onError: (error: Error) => {
       if (error.message === "CONFLICT") {

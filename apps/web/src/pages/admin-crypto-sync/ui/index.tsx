@@ -35,14 +35,11 @@ export function AdminCryptoSyncPage() {
             Sincronización de criptomonedas
           </h1>
           <p className="text-muted-foreground">
-            Consulta el estado de la base de datos de criptomonedas y fuerza
-            una sincronización manual con CoinGecko.
+            Consulta el estado de la base de datos de criptomonedas y fuerza una
+            sincronización manual con CoinGecko.
           </p>
         </div>
-        <Button
-          onClick={() => triggerSync.mutate()}
-          disabled={isSyncRunning}
-        >
+        <Button onClick={() => triggerSync.mutate()} disabled={isSyncRunning}>
           <RefreshCw
             className={isSyncRunning ? "size-4 animate-spin" : "size-4"}
           />

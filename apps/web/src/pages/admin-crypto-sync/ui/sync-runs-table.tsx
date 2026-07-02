@@ -24,7 +24,10 @@ const STATUS_LABEL: Record<SyncRun["status"], string> = {
   running: "En curso",
 }
 
-const STATUS_VARIANT: Record<SyncRun["status"], "default" | "destructive" | "secondary"> = {
+const STATUS_VARIANT: Record<
+  SyncRun["status"],
+  "default" | "destructive" | "secondary"
+> = {
   success: "default",
   failed: "destructive",
   running: "secondary",
@@ -78,7 +81,9 @@ export function SyncRunsTable({ runs }: SyncRunsTableProps) {
                 <TableHead>Estado</TableHead>
                 <TableHead>Inicio</TableHead>
                 <TableHead>Fin</TableHead>
-                <TableHead className="text-right">Activos actualizados</TableHead>
+                <TableHead className="text-right">
+                  Activos actualizados
+                </TableHead>
                 <TableHead>Error</TableHead>
               </TableRow>
             </TableHeader>
@@ -134,7 +139,10 @@ export function SyncRunsTableSkeleton() {
       <CardContent className="pt-6">
         <div className="flex flex-col gap-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-8 w-full animate-pulse rounded bg-muted" />
+            <div
+              key={i}
+              className="h-8 w-full animate-pulse rounded bg-muted"
+            />
           ))}
         </div>
       </CardContent>

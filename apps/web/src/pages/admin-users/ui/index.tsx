@@ -1,4 +1,6 @@
 import { Fragment, useEffect, useState } from "react"
+import { UserPlus } from "lucide-react"
+import { Link } from "react-router"
 
 import { useSession } from "@/entities/session"
 import { useUsers } from "../model"
@@ -89,11 +91,19 @@ export function AdminUsersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Usuarios</h1>
-        <p className="text-muted-foreground">
-          Administra las cuentas registradas en MarketMint.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Usuarios</h1>
+          <p className="text-muted-foreground">
+            Administra las cuentas registradas en MarketMint.
+          </p>
+        </div>
+        <Button asChild>
+          <Link to="/admin/users/new">
+            <UserPlus />
+            Agregar usuario
+          </Link>
+        </Button>
       </div>
 
       <Card>

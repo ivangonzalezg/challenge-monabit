@@ -9,7 +9,10 @@ const STATUS_LABEL: Record<SyncRun["status"], string> = {
   running: "En curso",
 }
 
-const STATUS_VARIANT: Record<SyncRun["status"], "default" | "destructive" | "secondary"> = {
+const STATUS_VARIANT: Record<
+  SyncRun["status"],
+  "default" | "destructive" | "secondary"
+> = {
   success: "default",
   failed: "destructive",
   running: "secondary",
@@ -66,9 +69,7 @@ export function SyncStatCards({
       </Card>
       <Card className="justify-center py-3">
         <CardContent className="flex flex-col gap-2">
-          <p className="text-sm text-muted-foreground">
-            Criptomonedas activas
-          </p>
+          <p className="text-sm text-muted-foreground">Criptomonedas activas</p>
           <h3 className="text-lg font-semibold">
             {activeCount.toLocaleString()}
           </h3>

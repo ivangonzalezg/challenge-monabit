@@ -22,6 +22,7 @@ const pageTitles: Record<string, string> = {
   "/favorites": "Favoritos",
   "/profile": "Perfil",
   "/admin/users": "Usuarios",
+  "/admin/users/new": "Agregar usuario",
   "/admin/crypto-sync": "Sincronización de criptomonedas",
   "/admin/audit-logs": "Registro de auditoría",
 }

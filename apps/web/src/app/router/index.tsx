@@ -6,6 +6,7 @@ import { GuestRoute } from "@/widgets/guest-route"
 import { ProtectedRoute } from "@/widgets/protected-route"
 import { AdminAuditLogsPage } from "@/pages/admin-audit-logs"
 import { AdminCryptoSyncPage } from "@/pages/admin-crypto-sync"
+import { AdminUserCreatePage } from "@/pages/admin-user-create"
 import { AdminUserDetailPage } from "@/pages/admin-user-detail"
 import { AdminUsersPage } from "@/pages/admin-users"
 import { DashboardPage } from "@/pages/dashboard"
@@ -69,6 +70,7 @@ export const router = createBrowserRouter([
             element: <AdminRoute />,
             children: [
               { path: "admin/users", element: <AdminUsersPage /> },
+              { path: "admin/users/new", element: <AdminUserCreatePage /> },
               {
                 path: "admin/users/:userId",
                 element: <AdminUserDetailPage />,
