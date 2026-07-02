@@ -10,3 +10,11 @@ export function formatPercent(value: number | null): string {
   if (value === null) return "—"
   return `${value.toFixed(1)}%`
 }
+
+export function formatDate(value: string | Date): string {
+  return new Date(value).toLocaleDateString("es-ES", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  })
+}

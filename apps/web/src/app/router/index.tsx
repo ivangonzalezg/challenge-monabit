@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router"
 
+import { AdminRoute } from "@/widgets/admin-route"
 import { DashboardLayout } from "@/widgets/dashboard-layout"
 import { GuestRoute } from "@/widgets/guest-route"
 import { ProtectedRoute } from "@/widgets/protected-route"
@@ -63,9 +64,14 @@ export const router = createBrowserRouter([
           { path: "explore", element: <ExplorePage /> },
           { path: "favorites", element: <FavoritesPage /> },
           { path: "profile", element: <ProfilePage /> },
-          { path: "admin/users", element: <AdminUsersPage /> },
-          { path: "admin/crypto-sync", element: <AdminCryptoSyncPage /> },
-          { path: "admin/audit-logs", element: <AdminAuditLogsPage /> },
+          {
+            element: <AdminRoute />,
+            children: [
+              { path: "admin/users", element: <AdminUsersPage /> },
+              { path: "admin/crypto-sync", element: <AdminCryptoSyncPage /> },
+              { path: "admin/audit-logs", element: <AdminAuditLogsPage /> },
+            ],
+          },
         ],
       },
     ],
