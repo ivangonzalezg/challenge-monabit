@@ -40,3 +40,42 @@ export function useUpdateUserName(userId: string | undefined) {
     },
   })
 }
+
+export function useSetUserBanned(userId: string | undefined) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (banned: boolean) => {
+      const { error } = banned
+        ? await authClient.admin.banUser({ userId: userId as string })
+        : await authClient.admin.unbanUser({ userId: userId as string })
+
+      if (error) {
+        throw new Error("Failed to update ban status")
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "user", userId] })
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] })
+    },
+  })
+}
+
+export function useDeleteUser(userId: string | undefined) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async () => {
+      const { error } = await authClient.admin.removeUser({
+        userId: userId as string,
+      })
+
+      if (error) {
+        throw new Error("Failed to delete user")
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] })
+    },
+  })
+}

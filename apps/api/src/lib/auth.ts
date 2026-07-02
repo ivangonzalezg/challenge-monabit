@@ -105,9 +105,9 @@ export const auth = betterAuth({
           if (!actorUserId) return;
           await db.insert(auditLogs).values({
             actorUserId,
-            targetUserId: user.id,
+            targetUserId: null,
             action: "USER_DELETED",
-            metadata: { email: user.email },
+            metadata: { userId: user.id, email: user.email },
             ipAddress:
               ctx?.request?.headers?.get("x-forwarded-for") ??
               ctx?.request?.headers?.get("x-real-ip") ??

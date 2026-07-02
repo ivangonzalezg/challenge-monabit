@@ -52,6 +52,12 @@ export function LoginPage() {
     })
 
     if (error) {
+      if (error.code === "BANNED_USER") {
+        setFormError(
+          "Tu cuenta ha sido suspendida. Contacta a soporte si crees que esto es un error."
+        )
+        return
+      }
       setFormError("Correo o contraseña incorrectos. Intenta de nuevo.")
       return
     }
@@ -60,7 +66,10 @@ export function LoginPage() {
   }
 
   const handleGoogleSignIn = () => {
-    authClient.signIn.social({ provider: "google", callbackURL: "/" })
+    authClient.signIn.social({
+      provider: "google",
+      callbackURL: window.location.origin,
+    })
   }
 
   return (

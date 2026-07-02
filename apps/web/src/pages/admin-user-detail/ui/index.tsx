@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router"
 import { useUser } from "../model"
 import { AdminNameFormCard } from "./admin-name-form-card"
 import { AdminUserSummaryCard } from "./admin-user-summary-card"
+import { DangerZoneCard } from "./danger-zone-card"
 import { Button, Skeleton } from "@/shared/ui"
 
 function AdminUserDetailSkeleton() {
@@ -58,6 +59,11 @@ export function AdminUserDetailPage() {
             banned={user.banned}
           />
           <AdminNameFormCard userId={user.id} currentName={user.name} />
+          <DangerZoneCard
+            userId={user.id}
+            userName={user.name}
+            banned={user.banned}
+          />
         </>
       )}
     </div>

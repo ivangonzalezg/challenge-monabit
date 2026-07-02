@@ -56,12 +56,12 @@ const adminGroup: NavGroup = {
   label: "Administración",
   items: [
     { title: "Usuarios", url: "/admin/users", icon: Users },
+    { title: "Registro de auditoría", url: "/admin/audit-logs", icon: History },
     {
       title: "Sincronización cripto",
       url: "/admin/crypto-sync",
       icon: RefreshCw,
     },
-    { title: "Registro de auditoría", url: "/admin/audit-logs", icon: History },
   ],
 }
 

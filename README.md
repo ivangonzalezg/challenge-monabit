@@ -188,26 +188,9 @@ See [apps/api/.env.example](apps/api/.env.example) and [apps/web/.env.example](a
 | `FIRST_ADMIN_PASSWORD` | Password for the first admin (bootstrap only, optional) |
 | `FIRST_ADMIN_NAME` | Display name for the first admin (bootstrap only, defaults to `Admin`) |
 
-## Project status
-
-**Base structure created.** The monorepo scaffold, shared types, crypto gateway interface, and documentation are in place.
-
-## Next steps
-
-1. Frontend internal architecture (routing, state management, component structure)
-2. Backend internal architecture (module structure, error handling, middleware)
-3. Authentication (email/password + Google OAuth)
-4. Protected routes and auth middleware
-5. User management (profile)
-6. Crypto data gateway implementation (CoinGecko endpoints)
-7. CoinGecko integration (market data, KPIs)
-8. Persistence layer (database provider selection + schema)
-9. Cloud Run deployment
-
 ## Documentation
 
 - [Architecture](docs/architecture.md)
 - [Database Schema](docs/schema.md)
 - [Auth & Security](docs/auth-security.md)
 - [Crypto Data Gateway](docs/crypto-data-gateway.md)
-- [AI Usage](docs/ai-usage.md)

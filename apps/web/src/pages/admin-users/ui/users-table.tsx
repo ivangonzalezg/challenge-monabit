@@ -1,3 +1,4 @@
+import { Check, X } from "lucide-react"
 import { useNavigate } from "react-router"
 
 import { formatDate } from "@/shared/lib/format"
@@ -25,6 +26,7 @@ export function UsersTable({ users }: UsersTableProps) {
         <TableRow>
           <TableHead>Nombre</TableHead>
           <TableHead>Correo electrónico</TableHead>
+          <TableHead className="text-center">Correo confirmado</TableHead>
           <TableHead>Registrado</TableHead>
           <TableHead className="text-center">Estado</TableHead>
         </TableRow>
@@ -41,6 +43,19 @@ export function UsersTable({ users }: UsersTableProps) {
             </TableCell>
             <TableCell className="text-muted-foreground">
               {user.email}
+            </TableCell>
+            <TableCell className="text-center">
+              {user.emailVerified ? (
+                <Check
+                  className="mx-auto size-4 text-emerald-600"
+                  aria-label="Correo confirmado"
+                />
+              ) : (
+                <X
+                  className="mx-auto size-4 text-muted-foreground"
+                  aria-label="Correo sin confirmar"
+                />
+              )}
             </TableCell>
             <TableCell>{formatDate(user.createdAt)}</TableCell>
             <TableCell className="text-center">
