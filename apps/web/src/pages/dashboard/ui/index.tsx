@@ -116,9 +116,7 @@ export function DashboardPage() {
       ) : (
         <>
           <KpiCards kpis={data.kpis} />
-          <div className="hidden">
-            <MarketTrendChart marketTrend={data.marketTrend} />
-          </div>
+          <MarketTrendChart marketTrend={data.marketTrend} />
           <TopCryptocurrenciesTable topAssets={data.topAssets} />
         </>
       )}

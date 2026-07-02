@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router"
+
 import { formatDate } from "@/shared/lib/format"
 import {
   Badge,
@@ -15,6 +17,8 @@ type UsersTableProps = {
 }
 
 export function UsersTable({ users }: UsersTableProps) {
+  const navigate = useNavigate()
+
   return (
     <Table>
       <TableHeader>
@@ -27,7 +31,11 @@ export function UsersTable({ users }: UsersTableProps) {
       </TableHeader>
       <TableBody>
         {users.map((user) => (
-          <TableRow key={user.id}>
+          <TableRow
+            key={user.id}
+            onClick={() => navigate(`/admin/users/${user.id}`)}
+            className="cursor-pointer"
+          >
             <TableCell>
               <div className="text-sm font-semibold">{user.name}</div>
             </TableCell>

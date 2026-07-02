@@ -28,7 +28,9 @@ const pageTitles: Record<string, string> = {
 
 export function DashboardLayout() {
   const { pathname } = useLocation()
-  const currentTitle = pageTitles[pathname] ?? "MarketMint"
+  const currentTitle =
+    pageTitles[pathname] ??
+    (pathname.startsWith("/admin/users/") ? "Editar usuario" : "MarketMint")
   const { setTheme } = useTheme()
   const resolvedTheme = useResolvedTheme()
 
