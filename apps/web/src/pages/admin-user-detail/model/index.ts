@@ -61,6 +61,27 @@ export function useSetUserBanned(userId: string | undefined) {
   })
 }
 
+export function useSetUserRole(userId: string | undefined) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (role: "user" | "admin") => {
+      const { error } = await authClient.admin.setRole({
+        userId: userId as string,
+        role,
+      })
+
+      if (error) {
+        throw new Error("Failed to update user role")
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "user", userId] })
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] })
+    },
+  })
+}
+
 export function useDeleteUser(userId: string | undefined) {
   const queryClient = useQueryClient()
 

@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router"
 
 import { useUser } from "../model"
 import { AdminNameFormCard } from "./admin-name-form-card"
+import { AdminRoleCard } from "./admin-role-card"
 import { AdminUserSummaryCard } from "./admin-user-summary-card"
 import { DangerZoneCard } from "./danger-zone-card"
 import { Button, Skeleton } from "@/shared/ui"
@@ -57,6 +58,11 @@ export function AdminUserDetailPage() {
             email={user.email}
             role={user.role}
             banned={user.banned}
+          />
+          <AdminRoleCard
+            userId={user.id}
+            userName={user.name}
+            role={user.role}
           />
           <AdminNameFormCard userId={user.id} currentName={user.name} />
           <DangerZoneCard
