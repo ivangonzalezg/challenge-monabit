@@ -19,7 +19,7 @@ export class SyncInProgressError extends Error {
 
 type SyncTrigger = "scheduled" | "manual";
 
-type SyncRunRow = typeof cryptoSyncRuns.$inferSelect;
+export type SyncRunRow = typeof cryptoSyncRuns.$inferSelect;
 
 const ASSET_LIMIT = 250;
 

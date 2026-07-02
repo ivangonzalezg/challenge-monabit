@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireRole } from "../../lib/middleware";
 import { validate } from "../../lib/validate";
 import { runSync, SyncInProgressError } from "./sync/crypto-sync.service";
+import { getSyncStats } from "./sync/crypto-sync-stats.service";
 import { getDashboard, NoDashboardDataError } from "./dashboard/crypto-dashboard.service";
 import { getAssets, ASSET_SORT_VALUES, type AssetSortBy } from "./assets/crypto-assets.service";
 import { listFavorites, addFavorite, removeFavorite } from "./favorites/crypto-favorites.service";
@@ -36,6 +37,31 @@ cryptoRouter.post("/sync", requireRole("admin"), async (_req, res) => {
 
     res.status(500).json({
       error: "Sync failed",
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+/**
+ * @openapi
+ * /api/crypto/sync/stats:
+ *   get:
+ *     summary: Get crypto database stats and recent sync run history
+ *     description: Admin-only. Returns total/active asset counts, the most recent sync run, and the last 10 sync runs.
+ *     tags: [Crypto]
+ *     responses:
+ *       200:
+ *         description: Sync stats
+ *       500:
+ *         description: Failed to load sync stats
+ */
+cryptoRouter.get("/sync/stats", requireRole("admin"), async (_req, res) => {
+  try {
+    const stats = await getSyncStats();
+    res.status(200).json(stats);
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to load sync stats",
       message: error instanceof Error ? error.message : String(error),
     });
   }
